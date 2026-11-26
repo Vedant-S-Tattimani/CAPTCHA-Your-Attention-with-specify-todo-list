@@ -128,31 +128,36 @@
       <!-- Streaks, level, garden and weekly charts (popup/insights.js) -->
       <section id="panel-insights" role="tabpanel" aria-labelledby="tab-insights" hidden></section>
 
-      <!-- Shorts guard (from CAPTCHA-Your-Attention) -->
+      <!-- Short-video guard (from CAPTCHA-Your-Attention, extended to more platforms) -->
       <section id="panel-guard" role="tabpanel" aria-labelledby="tab-guard">
         <label class="switch">
           <input type="checkbox" id="guard-enabled" />
-          <span>Interrupt YouTube Shorts with puzzles</span>
+          <span>Interrupt short-video feeds with puzzles</span>
         </label>
         <p class="guard-status" id="guard-status" role="status"></p>
 
+        <h2>Platforms</h2>
+        <p class="hint-left">Switch the guard on for each site. Chrome asks for access the first time.</p>
+        <ul class="platform-list" id="platform-list"></ul>
+        <p class="platform-msg" id="platform-msg" role="status"></p>
+
         <h2>Puzzle types</h2>
-        <p class="hint-left">Pick which puzzles can show up on Shorts. Press <strong>▶ Try</strong> to play one now.</p>
+        <p class="hint-left">Pick which puzzles can show up. Press <strong>▶ Try</strong> to play one now.</p>
         <ul class="kind-grid" id="kind-grid"></ul>
         <p class="error" id="kind-error" role="alert"></p>
 
         <h2>Rules</h2>
         <label class="field">
-          <span>Puzzle every <output id="puzzle-every-out"></output> shorts</span>
+          <span>Puzzle every <output id="puzzle-every-out"></output> videos</span>
           <input type="range" id="puzzle-every" min="1" max="50" />
         </label>
         <label class="field">
-          <span>Harder every <output id="difficulty-step-out"></output> shorts</span>
+          <span>Harder every <output id="difficulty-step-out"></output> videos</span>
           <input type="range" id="difficulty-step" min="1" max="50" />
         </label>
         <label class="switch">
           <input type="checkbox" id="strict-focus" />
-          <span>During a work session, puzzle on every short</span>
+          <span>During a work session, puzzle on every video</span>
         </label>
         <label class="switch">
           <input type="checkbox" id="notify" />
@@ -161,10 +166,11 @@
 
         <h2>Your stats</h2>
         <dl class="stats">
-          <div><dt>Shorts watched</dt><dd id="stat-shorts">0</dd></div>
-          <div><dt>Time on Shorts</dt><dd id="stat-time">0m</dd></div>
+          <div><dt>Videos watched</dt><dd id="stat-shorts">0</dd></div>
+          <div><dt>Time on feeds</dt><dd id="stat-time">0m</dd></div>
           <div><dt>Puzzles solved</dt><dd id="stat-solved">0</dd></div>
         </dl>
+        <ul class="by-platform" id="stat-by-platform" aria-label="Videos watched per platform"></ul>
         <button id="btn-reset-stats" class="link">Reset stats</button>
       </section>
     </main>
@@ -179,6 +185,7 @@
       </div>
     </div>
 
+    <script src="../lib/platforms.js"></script>
     <script src="../lib/settings.js"></script>
     <script src="../lib/captcha.js"></script>
     <script src="../lib/puzzles.js"></script>
@@ -189,6 +196,7 @@
     <script src="insights.js"></script>
     <script src="celebrate.js"></script>
     <script src="puzzle-picker.js"></script>
+    <script src="platform-picker.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

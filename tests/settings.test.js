@@ -27,10 +27,25 @@ test("dailyGoal defaults to 4 and is clamped", () => {
 test("addStats adds without mutating and rejects garbage", () => {
   const base = { shortsWatched: 2, secondsOnShorts: 10, puzzlesSolved: 1 };
   const next = S.addStats(base, { shortsWatched: 1, puzzlesSolved: 2 });
-  assert.deepEqual(next, { shortsWatched: 3, secondsOnShorts: 10, puzzlesSolved: 3 });
+  assert.deepEqual(next, { shortsWatched: 3, secondsOnShorts: 10, puzzlesSolved: 3, byPlatform: {} });
   assert.equal(base.shortsWatched, 2);
   assert.deepEqual(S.addStats(undefined, {}), { ...S.EMPTY_STATS });
   assert.deepEqual(S.sanitizeStats({ shortsWatched: -5 }), { ...S.EMPTY_STATS });
+});
+
+test("addStats counts videos per platform and drops unknown platforms", () => {
+  let stats = S.addStats(undefined, { shortsWatched: 1, platform: "youtube" });
+  stats = S.addStats(stats, { shortsWatched: 1, platform: "instagram" });
+  stats = S.addStats(stats, { shortsWatched: 1, platform: "instagram" });
+  stats = S.addStats(stats, { puzzlesSolved: 1, platform: "instagram" });
+  assert.equal(stats.shortsWatched, 3);
+  assert.deepEqual(stats.byPlatform, { youtube: 1, instagram: 2 });
+  assert.deepEqual(S.sanitizeStats({ byPlatform: { myspace: 4, tiktok: -1, snapchat: "2" } }).byPlatform, { snapchat: 2 });
+});
+
+test("platforms setting always includes YouTube", () => {
+  assert.deepEqual(S.sanitizeSettings(null).platforms, ["youtube"]);
+  assert.deepEqual(S.sanitizeSettings({ platforms: ["tiktok", "x"] }).platforms, ["youtube", "tiktok"]);
 });
 
 test("first puzzle comes on the third short by default", () => {
@@ -49,11 +64,17 @@ test("shortsUntilPuzzle counts down and never goes negative", () => {
 test("guardStatusText explains each state", () => {
   const s = S.sanitizeSettings({ puzzleEvery: 3 });
   const now = 1_000_000;
-  assert.match(S.guardStatusText(undefined, s, now), /Not seen on YouTube Shorts yet/);
+  assert.match(S.guardStatusText(undefined, s, now), /Not seen on a short-video feed yet/);
   assert.match(S.guardStatusText(undefined, { ...s, guardEnabled: false }, now), /off/);
-  assert.match(S.guardStatusText({ seenAt: now - 5000, shortsSinceLast: 1, focusing: false }, s, now), /Puzzle in 2 more shorts/);
-  assert.match(S.guardStatusText({ seenAt: now - 5000, shortsSinceLast: 2, focusing: false }, s, now), /Puzzle in 1 more short\./);
-  assert.match(S.guardStatusText({ seenAt: now - 5000, shortsSinceLast: 3, focusing: false }, s, now), /puzzle is due/);
+  assert.match(
+    S.guardStatusText({ seenAt: now - 5000, shortsSinceLast: 1, focusing: false }, s, now),
+    /Watching YouTube Shorts now\. Puzzle in 2 more videos/
+  );
+  assert.match(
+    S.guardStatusText({ seenAt: now - 5000, shortsSinceLast: 2, platform: "instagram" }, s, now),
+    /Watching Instagram Reels now\. Puzzle in 1 more video\./
+  );
+  assert.match(S.guardStatusText({ seenAt: now - 5000, shortsSinceLast: 3, platform: "tiktok" }, s, now), /TikTok now\. A puzzle is due/);
   assert.match(S.guardStatusText({ seenAt: now - 10 * 60 * 1000, shortsSinceLast: 1 }, s, now), /Ready/);
 });
 

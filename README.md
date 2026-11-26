@@ -1,6 +1,6 @@
 # Focus Guard
 
-A Chrome extension that helps you plan your work and stop doomscrolling. It combines two open-source projects:
+A Chrome extension that helps you plan your work and stop doomscrolling on **YouTube Shorts, Instagram Reels, TikTok, Facebook Reels and Snapchat Spotlight**. It combines two open-source projects:
 
 | From | What it brings |
 |------|----------------|
@@ -9,7 +9,7 @@ A Chrome extension that helps you plan your work and stop doomscrolling. It comb
 
 The two parts work together:
 
-- **During a work session, Shorts get strict.** Every short asks for a puzzle (you can turn this off).
+- **During a work session, feeds get strict.** Every video asks for a puzzle (you can turn this off).
 - **The puzzle reminds you what you should be doing.** It shows your most important open task.
 - The toolbar icon shows **W** during work and **B** during a break, and you get a notification when each phase ends.
 
@@ -22,23 +22,37 @@ Everything is stored on your computer (`chrome.storage.local`). There's no accou
 3. Click **Load unpacked** and pick the **`src`** folder inside this project.
 4. Pin Focus Guard from the puzzle-piece menu so the timer badge is visible.
 
-After editing any file, click the reload icon on the extension's card in `chrome://extensions`. Open YouTube tabs get the updated guard automatically.
+After editing any file, click the reload icon on the extension's card in `chrome://extensions` (the popup shows an **Update ready** banner with a one-click reload when you forget). Open tabs on guarded sites get the updated guard automatically.
+
+### Platforms
+
+YouTube Shorts is guarded out of the box. Switch the others on in the popup's **Guard → Platforms** section. Chrome asks for access to a site the first time you switch it on, and switching it off removes that access again.
+
+| Platform | Where | How a new video is detected |
+|----------|-------|-----------------------------|
+| ▶️ YouTube Shorts | `youtube.com/shorts/…` | The address changes per video |
+| 📸 Instagram Reels | `instagram.com/reels/…` | The address changes per reel |
+| 🎵 TikTok | `tiktok.com/foryou`, `/@user/video/…` | On the For You feed the address stays the same, so the guard watches which video fills the screen |
+| 📘 Facebook Reels | `facebook.com/reel/…` | The address changes per reel |
+| 👻 Snapchat Spotlight | `snapchat.com/@user/spotlight/…` | The address changes per video (checked on the live site) |
+
+These sites change their pages often. If a platform stops counting, its pattern lives in one place: `src/lib/platforms.js`.
 
 ### Is the guard running?
 
 Open the popup's **Guard** tab. The line under the on/off switch tells you what the guard sees:
 
-- *"Not seen on YouTube Shorts yet"*: the guard hasn't run on a Shorts page. Open a Short, or refresh the YouTube tab.
-- *"Watching Shorts now. Puzzle in 2 more shorts."*: it's working and counting down.
+- *"Not seen on a short-video feed yet"*: open a feed on a site that's switched on, or refresh a tab that was already open.
+- *"Watching Instagram Reels now. Puzzle in 2 more videos."*: it's working and counting down.
 
-By default the first puzzle appears on the **3rd** short (or on every short during a work session).
+By default the first puzzle appears on the **3rd** video (or on every video during a work session).
 
 ## Using it
 
 - **Focus tab**: start, pause, reset or skip the Pomodoro timer. A bar of dots tracks today's sessions against your daily goal. Under *Timer settings* you can change the work and break lengths and the daily goal.
-- **Tasks tab**: add tasks with a tag (Work, Study, Personal, Health, Other), a priority and an optional deadline. Press 🎯 on a task to focus on it: it shows on the timer and on every Shorts puzzle. Finishing a task earns XP (and confetti).
-- **Insights tab**: your level and XP, your streak, the Focus Garden, and 7-day charts of focus minutes and Shorts watched.
-- **Guard tab**: turn the Shorts guard on or off, choose how often puzzles appear and how quickly they get harder, and see all-time stats.
+- **Tasks tab**: add tasks with a tag (Work, Study, Personal, Health, Other), a priority and an optional deadline. Press 🎯 on a task to focus on it: it shows on the timer and on every puzzle. Finishing a task earns XP (and confetti).
+- **Guard tab** (opens first): turn the guard on or off, switch platforms on, pick puzzle types, choose how often puzzles appear and how quickly they get harder, and see all-time stats with a count per platform.
+- **Insights tab**: your level and XP, your streak, the Focus Garden, and 7-day charts of focus minutes and videos watched.
 
 ### Motivation features
 
@@ -47,7 +61,7 @@ By default the first puzzle appears on the **3rd** short (or on every short duri
 | 🔥 Streak | Days in a row with at least one finished focus session. Today doesn't break it until the day is over. |
 | 🌱 Focus Garden | One plant per day for the last week. It sprouts with your first session and blooms at your daily goal. |
 | ⭐ Levels | XP from finished sessions (10), finished tasks (5) and solved puzzles (2). Seven levels, from Seedling to Zen Guardian. |
-| 🧩 Puzzles | Six types, chosen in the Guard tab (see below). All get harder the more Shorts you watch. |
+| 🧩 Puzzles | Six types, chosen in the Guard tab (see below). All get harder the more videos you watch. |
 | 🔔 Break tips | When a work session ends, the notification shows your progress towards today's goal and a break idea. |
 | ⌨️ Shortcut | <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> starts or pauses the timer from any page. Change it at `chrome://extensions/shortcuts`. |
 | 👋 Welcome page | Opens once on first install with a 3-step quick start. |
@@ -73,7 +87,9 @@ Turn each type on or off in the **Guard** tab (at least one stays on). Press **�
 src/
   manifest.json          Manifest V3
   background.js          Service worker: runs the timer with chrome.alarms, badge, notifications
+  platform-sync.js       Service worker helper: adds/removes the guard per platform and permission
   lib/                   Pure logic, shared by every part and covered by tests
+    platforms.js         Supported sites, their feed addresses and video detection
     captcha.js           Math and number-sequence generators
     puzzles.js           All six puzzle types, one shape, answer checking
     pomodoro.js          Timer state
@@ -81,10 +97,10 @@ src/
     settings.js          Storage keys, settings validation, stats
     progress.js          Daily log, streaks, XP/levels, garden growth
   content/
-    shorts-guard.js      Runs on YouTube, detects Shorts, shows the puzzle overlay
+    shorts-guard.js      Runs on each guarded site, counts videos, shows the puzzle overlay
     puzzle-view.js       Renders any puzzle type (shared by the overlay and the popup demo)
     overlay-style.js     Overlay styles, applied inside the overlay's shadow root
-  popup/                 Toolbar popup UI
+  popup/                 Toolbar popup UI (platform-picker.js: the Guard tab's platform switches)
     insights.js          Level card, Focus Garden, weekly charts
     celebrate.js         Confetti (skipped if the system asks for reduced motion)
   welcome/               First-install welcome page

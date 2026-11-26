@@ -22,6 +22,7 @@
   let filter = { query: "", tag: "all" };
   let lastCompletedWork = null;
   let puzzlePicker = null;
+  let platformPicker = null;
 
   /* ---------- helpers ---------- */
   function el(tag, props = {}, children = []) {
@@ -289,6 +290,15 @@
     $("stat-shorts").textContent = String(stats.shortsWatched);
     $("stat-time").textContent = formatDuration(stats.secondsOnShorts);
     $("stat-solved").textContent = String(stats.puzzlesSolved);
+    const { PLATFORMS, PLATFORM_IDS } = globalThis.FocusPlatforms;
+    $("stat-by-platform").replaceChildren(
+      ...PLATFORM_IDS.filter((id) => stats.byPlatform[id]).map((id) =>
+        el("li", { title: PLATFORMS[id].name }, [
+          el("span", { textContent: PLATFORMS[id].icon, ariaHidden: "true" }),
+          el("span", { textContent: `${PLATFORMS[id].short} ${stats.byPlatform[id]}` }),
+        ])
+      )
+    );
   }
 
   function renderGuardStatus() {
@@ -307,6 +317,7 @@
     $("strict-focus").checked = settings.strictDuringFocus;
     $("notify").checked = settings.notify;
     puzzlePicker?.render();
+    platformPicker?.render().catch(reportError);
     renderGuardStatus();
   }
 
@@ -327,6 +338,13 @@
       getKinds: () => settings.puzzleKinds,
       saveKinds: (kinds) => saveSettings({ puzzleKinds: kinds }),
       celebrate,
+      onError: reportError,
+    });
+    platformPicker = globalThis.FocusPlatformPicker.setup({
+      list: $("platform-list"),
+      message: $("platform-msg"),
+      getPlatforms: () => settings.platforms,
+      savePlatforms: (ids) => saveSettings({ platforms: ids }),
       onError: reportError,
     });
     $("btn-reset-stats").addEventListener("click", () => {

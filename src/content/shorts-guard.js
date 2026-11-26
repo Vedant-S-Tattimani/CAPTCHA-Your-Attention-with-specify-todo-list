@@ -1,11 +1,16 @@
 /*
- * Shorts guard: counts YouTube Shorts and interrupts with a puzzle (types chosen in the popup).
+ * Short-video guard: counts videos on YouTube Shorts, Instagram Reels, TikTok, Facebook Reels and
+ * Snapchat Spotlight (see lib/platforms.js) and interrupts with a puzzle every few videos.
  * Based on CAPTCHA-Your-Attention (MIT, Yash Yadav).
- * Runs on all of youtube.com because YouTube is a single-page app: going from the
- * home page to Shorts doesn't reload the page.
+ * Runs on the whole site because these are single-page apps: opening the video feed from the
+ * home page doesn't reload the page.
  */
 (function () {
   "use strict";
+
+  const { platformForHost, videoIdFromPath, isScrollFeed, dominantVideo } = globalThis.FocusPlatforms;
+  const platform = platformForHost(location.hostname);
+  if (!platform) return; // not a supported site
 
   const { KEYS, sanitizeSettings, addStats, shouldShowPuzzle } = globalThis.FocusSettings;
   const { difficultyFor } = globalThis.FocusCaptcha;
@@ -41,10 +46,39 @@
   let puzzleOpen = false;
   let lastTick = Date.now();
 
-  function shortIdFromUrl() {
-    const match = location.pathname.match(/^\/shorts\/([^/?#]+)/);
-    return match ? match[1] : null;
+  const unitOne = platform.unit.replace(/s$/, "");
+  const videoKeys = new WeakMap();
+  let nextVideoKey = 1;
+
+  /** Stable key for a <video>: its source when it has one, else a per-element number. */
+  function keyFor(video) {
+    const src = video.currentSrc || video.src || video.poster;
+    if (src && !src.startsWith("blob:")) return src;
+    if (!videoKeys.has(video)) videoKeys.set(video, `video-${nextVideoKey++}`);
+    return `${videoKeys.get(video)}|${src || ""}`;
   }
+
+  /** On feeds that keep one address (TikTok For You): the video filling the screen. */
+  function onScreenVideoKey() {
+    const boxes = [...document.querySelectorAll("video")].map((video) => {
+      const rect = video.getBoundingClientRect();
+      return { key: keyFor(video), top: rect.top, bottom: rect.bottom, playing: !video.paused };
+    });
+    return dominantVideo(boxes, window.innerHeight);
+  }
+
+  /**
+   * What's on screen: { id } for a video, { id: null, onFeed: true } while scrolling a feed
+   * without one video filling the screen, or { id: null, onFeed: false } when off the feed.
+   */
+  function currentVideo() {
+    const fromPath = videoIdFromPath(platform, location.pathname);
+    if (fromPath) return { id: fromPath, onFeed: true };
+    if (isScrollFeed(platform, location.pathname)) return { id: onScreenVideoKey(), onFeed: true };
+    return { id: null, onFeed: false };
+  }
+
+  const guardedHere = () => settings.guardEnabled && settings.platforms.includes(platform.id);
 
   /** Updates all-time stats and today's log (shorts and puzzles feed the Insights tab). */
   async function bumpStats(delta) {
@@ -64,7 +98,12 @@
   function reportStatus() {
     chrome.storage.local
       .set({
-        [KEYS.guardStatus]: { seenAt: Date.now(), shortsSinceLast: shortsSinceLastPuzzle, focusing: isFocusing(pomodoro) },
+        [KEYS.guardStatus]: {
+          seenAt: Date.now(),
+          shortsSinceLast: shortsSinceLastPuzzle,
+          focusing: isFocusing(pomodoro),
+          platform: platform.id,
+        },
       })
       .catch((error) => console.warn("[Focus Guard] could not save status", error));
   }
@@ -188,7 +227,7 @@
       },
     });
     const form = activeView.element;
-    const leave = el("button", { type: "button", className: "ghost leave", textContent: "Leave Shorts" });
+    const leave = el("button", { type: "button", className: "ghost leave", textContent: `Leave ${platform.short}` });
     form.append(leave);
 
     const task = focusTask(tasks, focusTaskId);
@@ -201,7 +240,7 @@
       el("h2", { textContent: focusing ? "You're in a focus session" : "Time for a brain check" }),
       el("p", {
         className: "sub",
-        textContent: `${shortsThisSession} short${shortsThisSession === 1 ? "" : "s"} this visit. Solve this to keep watching.`,
+        textContent: `${shortsThisSession} ${shortsThisSession === 1 ? unitOne : platform.unit} this visit. Solve this to keep watching.`,
       }),
       reminder,
       form,
@@ -213,9 +252,9 @@
     leave.addEventListener("click", () => {
       closePuzzle();
       shortsSinceLastPuzzle = 0;
-      location.assign("https://www.youtube.com/");
+      location.assign(platform.home);
     });
-    // Keep YouTube's shortcuts (numbers seek, arrows scroll Shorts) from reacting to typing.
+    // Keep the site's shortcuts (numbers seek, arrows scroll the feed) from reacting to typing.
     ["keydown", "keyup", "keypress", "wheel"].forEach((type) =>
       host.addEventListener(type, (e) => e.stopPropagation(), { capture: false })
     );
@@ -228,7 +267,7 @@
     currentShortId = id;
     shortsThisSession += 1;
     shortsSinceLastPuzzle += 1;
-    bumpStats({ shortsWatched: 1 });
+    bumpStats({ shortsWatched: 1, platform: platform.id });
     reportStatus();
     if (shouldShowPuzzle(shortsSinceLastPuzzle, settings, isFocusing(pomodoro))) openPuzzle();
   }
@@ -242,15 +281,19 @@
     const elapsed = (now - lastTick) / 1000;
     lastTick = now;
 
-    const id = shortIdFromUrl();
-    if (!id) {
+    if (!guardedHere()) {
+      if (puzzleOpen) closePuzzle();
+      return;
+    }
+    const { id, onFeed } = currentVideo();
+    if (!onFeed) {
       if (puzzleOpen) closePuzzle();
       currentShortId = null;
       return;
     }
-    if (id !== currentShortId) onShortChanged(id);
+    if (id && id !== currentShortId) onShortChanged(id);
     if (puzzleOpen) {
-      pauseVideos(); // YouTube tries to autoplay; keep it paused until solved.
+      pauseVideos(); // Feeds try to autoplay; keep them paused until solved.
       if (!document.getElementById(HOST_ID)) puzzleOpen = false; // page removed our overlay
       return;
     }

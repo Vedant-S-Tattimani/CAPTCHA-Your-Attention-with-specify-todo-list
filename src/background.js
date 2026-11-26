@@ -1,5 +1,5 @@
 /* Background service worker: owns the Pomodoro timer so it keeps running with the popup closed. */
-importScripts("lib/settings.js", "lib/pomodoro.js", "lib/progress.js");
+importScripts("lib/platforms.js", "lib/settings.js", "lib/pomodoro.js", "lib/progress.js", "platform-sync.js");
 
 const { KEYS, sanitizeSettings } = self.FocusSettings;
 const P = self.FocusPomodoro;
@@ -112,6 +112,8 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== "local" || !changes[KEYS.settings]) return;
   const oldSettings = sanitizeSettings(changes[KEYS.settings].oldValue);
+  const newSettings = sanitizeSettings(changes[KEYS.settings].newValue);
+  if (oldSettings.platforms.join() !== newSettings.platforms.join()) syncPlatforms();
   load()
     .then(({ settings, state }) => {
       const untouched = !state.running && state.remainingMs === P.durationMs(state.mode, oldSettings);
@@ -130,26 +132,22 @@ async function recover() {
   }
 }
 
-/*
- * Chrome only adds content scripts to pages loaded after install, so YouTube tabs that were
- * already open would have no guard until refreshed. Add it to them now.
- */
-async function injectIntoOpenYouTubeTabs() {
-  const { content_scripts: [guard] } = chrome.runtime.getManifest();
-  const tabs = await chrome.tabs.query({ url: guard.matches });
-  await Promise.all(
-    tabs.map((tab) =>
-      chrome.scripting
-        .executeScript({ target: { tabId: tab.id }, files: guard.js })
-        .catch((e) => console.warn(`[Focus Guard] could not add guard to tab ${tab.id}`, e))
-    )
-  );
+/* Guards on Instagram, TikTok, Facebook and Snapchat follow settings + granted access. */
+function syncPlatforms(options) {
+  return self.FocusPlatformSync.sync(options).catch((e) => console.error("[Focus Guard] platform sync failed", e));
 }
 
-chrome.runtime.onStartup.addListener(() => recover().catch((e) => console.error("[Focus Guard] recover failed", e)));
+chrome.permissions.onAdded.addListener(() => syncPlatforms());
+chrome.permissions.onRemoved.addListener(() => syncPlatforms());
+
+chrome.runtime.onStartup.addListener(() => {
+  recover().catch((e) => console.error("[Focus Guard] recover failed", e));
+  syncPlatforms();
+});
 chrome.runtime.onInstalled.addListener((details) => {
   recover().catch((e) => console.error("[Focus Guard] install init failed", e));
-  injectIntoOpenYouTubeTabs().catch((e) => console.error("[Focus Guard] injection failed", e));
+  // Chrome only injects on page load, so add the guard to already-open guarded tabs too.
+  syncPlatforms({ injectAll: true });
   if (details.reason === "install") {
     chrome.tabs.create({ url: chrome.runtime.getURL("welcome/welcome.html") }).catch((e) => console.warn(e));
   }

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Focus Guard",
-  "version": "2.3.4",
-  "description": "Focus timer, sticky-note tasks, a growing focus garden and streaks, plus puzzles that stop YouTube Shorts doomscrolling.",
+  "version": "2.4.0",
+  "description": "Puzzles that stop doomscrolling on YouTube Shorts, Instagram Reels, TikTok, Facebook Reels and Snapchat Spotlight, plus a focus timer, tasks, streaks and a focus garden.",
   "action": {
     "default_popup": "popup/popup.html",
     "default_title": "Focus Guard",
@@ -35,6 +35,7 @@
         "https://m.youtube.com/*"
       ],
       "js": [
+        "lib/platforms.js",
         "lib/settings.js",
         "lib/captcha.js",
         "lib/puzzles.js",
@@ -68,8 +69,22 @@
       ],
       "matches": [
         "https://www.youtube.com/*",
-        "https://m.youtube.com/*"
+        "https://m.youtube.com/*",
+        "https://www.instagram.com/*",
+        "https://www.tiktok.com/*",
+        "https://www.facebook.com/*",
+        "https://m.facebook.com/*",
+        "https://web.facebook.com/*",
+        "https://www.snapchat.com/*"
       ]
     }
+  ],
+  "optional_host_permissions": [
+    "https://www.instagram.com/*",
+    "https://www.tiktok.com/*",
+    "https://www.facebook.com/*",
+    "https://m.facebook.com/*",
+    "https://web.facebook.com/*",
+    "https://www.snapchat.com/*"
   ]
 }

@@ -220,7 +220,7 @@
       garden(days, goal),
       el("h2", { textContent: "This week" }),
       barChart({ days, field: "focusMinutes", label: "Focus minutes", unit: "min", seriesClass: "s-focus" }),
-      barChart({ days, field: "shorts", label: "Shorts watched", unit: "shorts", seriesClass: "s-shorts" })
+      barChart({ days, field: "shorts", label: "Videos watched", unit: "videos", seriesClass: "s-shorts" })
     );
   }
 
