@@ -1,22 +1,29 @@
+/* Welcome page: same "design canvas" language as the popup. */
 :root {
-  --paper: #fbf7ee;
-  --ink: #1f1d1a;
-  --muted: #6b655c;
-  --line: #e4dccb;
-  --card: #ffffff;
-  --work: #d9480f;
+  --bg: #ffffff;
+  --grid: #efefef;
+  --panel: #ffffff;
+  --ink: #111212;
+  --dim: #5d6063;
+  --rule: #e4e4e4;
+  --cyan: #36c5f0;
+  --berry: #e01e5a;
+  --yellow: #ecb22e;
+  --green: #2fbc81;
   --font-ui: "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-display: "Bitcount Prop Single", "Segoe UI", system-ui, sans-serif;
   --font-hand: "Shadows Into Light", "Segoe Print", "Comic Sans MS", cursive;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #1c1b19;
-    --ink: #f1ece2;
-    --muted: #a59f94;
-    --line: #34312c;
-    --card: #262420;
+    --bg: #0f1010;
+    --grid: #1a1c1c;
+    --panel: #161717;
+    --ink: #f2f2f2;
+    --dim: #a3a6a9;
+    --rule: #2a2c2c;
   }
 }
 
@@ -26,57 +33,128 @@
 
 body {
   margin: 0;
-  background: var(--paper);
   color: var(--ink);
   font: 16px/1.55 var(--font-ui);
+  background-color: var(--bg);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 100px 100px;
 }
 
 main {
   max-width: 880px;
   margin: 0 auto;
-  padding: 48px 16px 64px;
+  padding: 56px 16px 64px;
 }
 
+/* ---------- Hero ---------- */
 .hero {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 24px;
-  margin-bottom: 48px;
+  margin-bottom: 56px;
 }
 
-/* Handwritten "let's play!" with a pen swoosh, sitting on the big pixel headline. */
+.hero-text {
+  position: relative;
+}
+
 .eyebrow {
   position: relative;
   display: inline-block;
-  margin: 0 0 6px 4px;
-  color: var(--ink);
-  font: 30px/1 var(--font-hand);
+  margin: 0 0 14px 8px;
+  font: 32px/1 var(--font-hand);
   transform: rotate(-4deg);
 }
 
 .eyebrow::after {
   content: "";
   position: absolute;
-  left: -4px;
-  right: -8px;
-  bottom: -8px;
+  left: -6px;
+  right: -10px;
+  bottom: -9px;
   height: 9px;
   background: no-repeat center / 100% 100%
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M2 6 Q30 1 60 4 T98 3' fill='none' stroke='%23d9480f' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M8 7.5 Q40 4 92 5.5' fill='none' stroke='%23d9480f' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M2 6 Q30 1 60 4 T98 3' fill='none' stroke='%2336c5f0' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
 h1 {
-  margin: 0 0 14px;
-  font: 800 clamp(44px, 9vw, 88px) / 1 var(--font-display);
+  margin: 0 0 20px;
+  font: 800 clamp(40px, 8.5vw, 84px) / 1 var(--font-display);
   letter-spacing: 1px;
   text-transform: uppercase;
+}
+
+/* Figma-style selection box with square handles */
+.selection {
+  position: relative;
+  display: inline-block;
+  padding: 10px 14px 6px;
+  border: 1px solid var(--cyan);
+}
+
+.handle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--cyan);
+}
+
+.handle.tl { top: -4px; left: -4px; }
+.handle.tr { top: -4px; right: -4px; }
+.handle.bl { bottom: -4px; left: -4px; }
+.handle.br { bottom: -4px; right: -4px; }
+
+/* Collaborator-style cursor pills floating around the title */
+.cursor-pill {
+  position: absolute;
+  padding: 4px 11px 3px;
+  border-radius: 99px;
+  font: 700 12px var(--font-display);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  animation: drift 6s ease-in-out infinite;
+}
+
+.cursor-pill::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: -10px;
+  width: 14px;
+  height: 14px;
+  background: var(--pill);
+  clip-path: polygon(0 0, 100% 45%, 50% 55%, 40% 100%);
+}
+
+.cursor-pill.berry {
+  --pill: var(--berry);
+  top: 6px;
+  right: 8%;
+  background: var(--berry);
+  color: #fff;
+}
+
+.cursor-pill.yellow {
+  --pill: var(--yellow);
+  top: 14px;
+  left: 34%;
+  background: var(--yellow);
+  color: #111212;
+  animation-delay: -3s;
+}
+
+@keyframes drift {
+  50% {
+    transform: translate(6px, -5px);
+  }
 }
 
 .lede {
   max-width: 52ch;
   margin: 0;
-  color: var(--muted);
+  color: var(--dim);
   font-size: 18px;
 }
 
@@ -92,28 +170,34 @@ h1 {
   }
 }
 
-.soil { fill: #c4a47c; }
-.stem { fill: none; stroke: #2b8a3e; stroke-width: 4; stroke-linecap: round; }
-.leaf { fill: #40c057; }
-.petal { fill: #f783ac; }
-.center { fill: #fcc419; }
+.soil { fill: #522e29; opacity: 0.85; }
+.stem { fill: none; stroke: #1fa56e; stroke-width: 4; stroke-linecap: round; }
+.leaf { fill: #2fbc81; }
+.petal { fill: #e01e5a; }
+.center { fill: #ecb22e; }
 
+/* ---------- Sections ---------- */
 h2 {
-  margin: 0 0 16px;
-  font: 800 26px var(--font-display);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 18px;
+  font: 800 24px var(--font-display);
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
-h3 {
-  font-family: var(--font-display);
-  letter-spacing: 0.4px;
+h2::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: var(--cyan);
 }
 
 .steps ol {
   display: grid;
   gap: 12px;
-  margin: 0 0 48px;
+  margin: 0 0 56px;
   padding: 0;
   list-style: none;
 }
@@ -124,9 +208,10 @@ h3 {
   align-items: start;
   gap: 14px;
   padding: 16px 18px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--card);
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  background: var(--panel);
+  box-shadow: 4px 4px 0 var(--cyan);
 }
 
 .num {
@@ -134,42 +219,44 @@ h3 {
   place-items: center;
   width: 32px;
   height: 32px;
-  border-radius: 50%;
-  background: var(--work);
-  color: #fff;
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--bg);
   font: 800 16px var(--font-display);
 }
 
 kbd {
   padding: 1px 6px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--rule);
   border-bottom-width: 2px;
-  border-radius: 5px;
-  font: 13px ui-monospace, Consolas, monospace;
+  border-radius: 4px;
+  background: var(--panel);
+  font: 13px var(--font-mono);
 }
 
+/* Feature sticky notes, tilted like notes stuck on a canvas */
 .features {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 12px;
-  margin-bottom: 40px;
+  gap: 16px;
+  margin-bottom: 44px;
 }
 
 .features article {
   padding: 18px;
-  border-radius: 4px 16px 16px 16px;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 6px 14px rgba(0, 0, 0, 0.06);
-  transition: transform 200ms;
+  color: #111212;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 10px 20px rgba(17, 18, 18, 0.1);
+  transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
+.features article:nth-child(1) { background: #c7ebf9; transform: rotate(-1.5deg); }
+.features article:nth-child(2) { background: #bfe8d3; transform: rotate(1deg); }
+.features article:nth-child(3) { background: #f5dda1; transform: rotate(-0.8deg); }
+.features article:nth-child(4) { background: #f8c8d7; transform: rotate(1.4deg); }
 
 .features article:hover {
-  transform: rotate(-0.6deg) translateY(-2px);
+  transform: rotate(0deg) translateY(-3px);
 }
-
-.features article:nth-child(1) { background: #ffd8a8; color: #1f1d1a; }
-.features article:nth-child(2) { background: #b2f2bb; color: #1f1d1a; }
-.features article:nth-child(3) { background: #fcc2d7; color: #1f1d1a; }
-.features article:nth-child(4) { background: #a5d8ff; color: #1f1d1a; }
 
 .icon {
   font-size: 26px;
@@ -177,7 +264,9 @@ kbd {
 
 h3 {
   margin: 6px 0 4px;
-  font-size: 17px;
+  font: 800 16px var(--font-display);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
 }
 
 .features p {
@@ -187,10 +276,12 @@ h3 {
 
 .privacy {
   padding: 14px 18px;
-  border-left: 4px solid var(--work);
-  border-radius: 0 12px 12px 0;
-  background: var(--card);
-  color: var(--muted);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--green);
+  border-radius: 0 4px 4px 0;
+  background: var(--panel);
+  color: var(--dim);
+  font-size: 15px;
 }
 
 .privacy strong {
@@ -204,6 +295,11 @@ h3 {
 
   .hero-plant {
     width: 110px;
+  }
+
+  .cursor-pill.yellow {
+    left: 46%;
+    top: 30px;
   }
 }
 

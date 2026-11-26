@@ -100,7 +100,7 @@
       "align-items": "center",
       "justify-content": "center",
       padding: "16px",
-      background: "rgba(10, 12, 16, 0.78)",
+      background: "rgba(17, 18, 18, 0.78)",
       "font-family": 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
     },
     card: {
@@ -108,15 +108,16 @@
       "max-width": "360px",
       "box-sizing": "border-box",
       padding: "24px",
-      "border-radius": "16px",
-      background: "#fffdf8",
-      color: "#1f2328",
+      "border-radius": "4px",
+      border: "1px solid #111212",
+      "background-color": "#ffffff",
+      color: "#111212",
       "text-align": "center",
-      "box-shadow": "0 20px 50px rgba(0, 0, 0, 0.35)",
+      "box-shadow": "8px 8px 0 #36c5f0, 0 24px 60px rgba(0, 0, 0, 0.4)",
     },
     question: { "font-size": "28px", "font-weight": "800", margin: "0 0 12px" },
     input: { width: "100%", "box-sizing": "border-box", padding: "10px", "font-size": "18px", "text-align": "center" },
-    primary: { background: "#d9480f", color: "#fff", border: "2px solid #1f2328", "border-radius": "12px", cursor: "pointer" },
+    primary: { background: "#111212", color: "#fff", border: "1px solid #111212", "border-radius": "4px", cursor: "pointer" },
   };
 
   function pin(node, styles) {

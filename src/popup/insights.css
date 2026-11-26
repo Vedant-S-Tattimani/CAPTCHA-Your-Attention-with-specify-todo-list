@@ -1,0 +1,244 @@
+/* Insights tab: level card, Focus Garden and weekly charts. Tokens come from popup.css. */
+
+/* ---------- Level card: an ink panel like the reference's dock ---------- */
+.level-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  background: #111212;
+  color: #ffffff;
+  box-shadow: 4px 4px 0 var(--yellow);
+}
+
+.level-badge {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--yellow);
+  color: #111212;
+  font: 800 22px var(--font-display);
+}
+
+.level-title {
+  font: 800 17px/1 var(--font-display);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.xp-bar {
+  height: 8px;
+  margin: 8px 0 5px;
+  border-radius: 2px;
+  background: #2c2e2e;
+  overflow: hidden;
+}
+
+.xp-fill {
+  display: block;
+  height: 100%;
+  background: repeating-linear-gradient(90deg, var(--yellow) 0 8px, #f5c856 8px 10px);
+  transition: width 700ms var(--spring);
+}
+
+.level-meta {
+  color: #a3a6a9;
+  font: 10px var(--font-mono);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.streak-big {
+  display: grid;
+  justify-items: center;
+  padding-left: 12px;
+  border-left: 1px dashed #3b3e3e;
+  line-height: 1.1;
+}
+
+.streak-big .flame {
+  font-size: 18px;
+}
+
+.streak-big strong {
+  color: var(--berry);
+  font: 800 24px var(--font-display);
+}
+
+.streak-big small {
+  color: #a3a6a9;
+  font: 14px/1 var(--font-hand);
+}
+
+.hint-left {
+  margin: 8px 0;
+}
+
+/* ---------- Focus Garden ---------- */
+.garden {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin: 0;
+  padding: 12px 8px 8px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  background-color: var(--panel);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 12px 12px;
+  list-style: none;
+}
+
+.plot {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 2px 0;
+}
+
+.plot.today {
+  outline: 1px solid var(--cyan);
+  outline-offset: -1px;
+}
+
+.plot.today .plant {
+  animation: sway 3s ease-in-out infinite;
+  transform-origin: 50% 95%;
+}
+
+@keyframes sway {
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+.plant {
+  width: 100%;
+  max-width: 40px;
+  height: 56px;
+}
+
+.plant .soil { fill: #522e29; opacity: 0.85; }
+.plant .seed { fill: var(--faint); }
+.plant .stem { fill: none; stroke: #1fa56e; stroke-width: 2; stroke-linecap: round; }
+.plant .leaf { fill: #2fbc81; }
+.plant .petal { fill: #e01e5a; }
+.plant .bloom-center { fill: #ecb22e; }
+
+.plot-day {
+  color: var(--dim);
+  font: 9px var(--font-mono);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.plot.today .plot-day {
+  color: var(--cyan-strong);
+  font-weight: 700;
+}
+
+/* ---------- Weekly charts ---------- */
+.chart-card {
+  margin: 0 0 10px;
+  padding: 10px 12px 6px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+}
+
+.chart-card figcaption {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.chart-title {
+  font: 700 12px var(--font-display);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.chart-total {
+  margin-left: auto;
+  color: var(--dim);
+  font: 10px var(--font-mono);
+  text-transform: uppercase;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.swatch.s-focus,
+.bar.s-focus {
+  background: var(--chart-focus);
+  fill: var(--chart-focus);
+}
+
+.swatch.s-shorts,
+.bar.s-shorts {
+  background: var(--chart-shorts);
+  fill: var(--chart-shorts);
+}
+
+.chart-wrap {
+  position: relative;
+}
+
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.chart .hit {
+  fill: transparent;
+}
+
+.chart .col:hover .bar,
+.chart .col:focus .bar {
+  opacity: 0.8;
+}
+
+.chart .col:focus {
+  outline: none;
+}
+
+.chart .baseline {
+  stroke: var(--rule-2);
+}
+
+.chart .axis-label {
+  fill: var(--dim);
+  font: 9px var(--font-mono);
+  text-anchor: middle;
+  text-transform: uppercase;
+}
+
+.chart .axis-label.is-today {
+  fill: var(--ink);
+  font-weight: 700;
+}
+
+.chart-tip {
+  position: absolute;
+  top: -8px;
+  transform: translateX(-50%);
+  padding: 3px 8px;
+  border-radius: 99px;
+  background: #111212;
+  color: #ffffff;
+  font: 10px var(--font-mono);
+  white-space: nowrap;
+  pointer-events: none;
+}

@@ -5,17 +5,33 @@
     <title>Focus Guard</title>
     <link rel="stylesheet" href="../fonts/fonts.css" />
     <link rel="stylesheet" href="popup.css" />
+    <link rel="stylesheet" href="panels.css" />
+    <link rel="stylesheet" href="insights.css" />
   </head>
   <body>
+    <div class="statusbar">
+      <span class="ruler" aria-hidden="true"><span>0</span><span>100</span><span>200</span></span>
+      <span class="status" role="status">
+        <i class="status-dot" id="status-dot"></i>
+        <span id="status-text">GUARD ON</span>
+        <span aria-hidden="true">·</span>
+        <time id="status-time"></time>
+      </span>
+    </div>
     <header class="top">
       <p class="tagline" id="tagline">let's focus!</p>
       <div class="title-row">
-        <h1>Focus Guard <span class="version" id="version"></span></h1>
+        <h1 class="selection">
+          Focus Guard
+          <i class="handle tl" aria-hidden="true"></i><i class="handle tr" aria-hidden="true"></i>
+          <i class="handle bl" aria-hidden="true"></i><i class="handle br" aria-hidden="true"></i>
+        </h1>
         <div class="chips">
-          <span class="chip" id="chip-streak" title="Days in a row with a finished focus session">🔥 0</span>
+          <span class="chip chip-streak" id="chip-streak" title="Days in a row with a finished focus session">🔥 0</span>
           <span class="chip chip-level" id="chip-level" title="Your level">Lv 1</span>
         </div>
       </div>
+      <span class="version" id="version"></span>
       <nav class="tabs" role="tablist" aria-label="Sections">
         <button role="tab" id="tab-focus" aria-controls="panel-focus" aria-selected="true">Focus</button>
         <button role="tab" id="tab-tasks" aria-controls="panel-tasks" aria-selected="false" tabindex="-1">Tasks</button>

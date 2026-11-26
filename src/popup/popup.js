@@ -129,6 +129,16 @@
     $("focus-on-title").textContent = task ? task.title : "";
   }
 
+  const TIME_FORMAT = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" });
+
+  /** Top strip: guard on/off with a status dot, plus the current time. */
+  function renderStatusBar() {
+    const on = settings.guardEnabled;
+    $("status-dot").classList.toggle("off", !on);
+    $("status-text").textContent = on ? "GUARD ON" : "GUARD OFF";
+    $("status-time").textContent = TIME_FORMAT.format(new Date()).toUpperCase();
+  }
+
   /** The handwritten note above the title reacts to what you're doing. */
   function taglineFor(state) {
     if (state.running && state.mode === "work") return "in the zone!";
@@ -152,6 +162,7 @@
     $("btn-toggle").textContent = pomodoro.running ? "Pause" : "Start";
     $("focus-hint").textContent = P.isFocusing(pomodoro) ? "Shorts will ask for a puzzle on every video." : "";
     $("tagline").textContent = taglineFor(pomodoro);
+    renderStatusBar();
 
     if (lastCompletedWork !== null && pomodoro.completedWork > lastCompletedWork) celebrate($("dial"));
     lastCompletedWork = pomodoro.completedWork;

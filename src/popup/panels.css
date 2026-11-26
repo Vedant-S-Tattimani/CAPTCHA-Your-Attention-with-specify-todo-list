@@ -1,0 +1,239 @@
+/* Tasks and Guard tab styles. Tokens come from popup.css. */
+
+/* ---------- Tasks ---------- */
+.task-form {
+  display: grid;
+  gap: 8px;
+}
+
+.task-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.4fr auto;
+  gap: 6px;
+}
+
+.task-meta select,
+.task-meta input {
+  min-width: 0;
+  padding: 6px;
+  font-size: 12px;
+}
+
+.error {
+  min-height: 16px;
+  margin: 0;
+  color: var(--danger);
+  font-size: 12px;
+}
+
+.task-tools {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.task-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0 2px;
+  list-style: none;
+}
+
+/* Tasks are sticky notes, slightly tilted, alternating */
+.task {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: 10px;
+  padding: 10px 8px 10px 12px;
+  background: var(--note-plain);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05), 0 6px 12px rgba(17, 18, 18, 0.07);
+  transform: rotate(-0.6deg);
+  transition: transform 200ms var(--spring);
+}
+
+.task:nth-child(even) {
+  transform: rotate(0.5deg);
+}
+
+.task:hover {
+  transform: rotate(0deg) translateY(-1px);
+}
+
+.task[data-tag="work"] { background: var(--note-cream); }
+.task[data-tag="study"] { background: var(--note-sky); }
+.task[data-tag="personal"] { background: var(--note-blush); }
+.task[data-tag="health"] { background: var(--note-mint); }
+
+.task.done {
+  opacity: 0.5;
+}
+
+.task.done .task-title {
+  text-decoration: line-through;
+}
+
+.task.pinned {
+  outline: 1px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+.task input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  accent-color: var(--ink);
+}
+
+.task-title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.task-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+  color: var(--dim);
+  font: 10px var(--font-mono);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.pill {
+  padding: 1px 6px 0;
+  border-radius: 99px;
+  background: rgba(17, 18, 18, 0.08);
+  color: var(--ink);
+  font: 700 10px var(--font-mono);
+}
+
+.pill.high {
+  background: var(--berry);
+  color: #fff;
+}
+
+.overdue {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.task-actions {
+  display: flex;
+  gap: 2px;
+}
+
+.icon-btn {
+  padding: 2px 6px;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--dim);
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: rgba(17, 18, 18, 0.08);
+  color: var(--ink);
+}
+
+.icon-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.focus-btn {
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+
+.focus-btn.on,
+.focus-btn:hover:not(:disabled) {
+  filter: none;
+  opacity: 1;
+}
+
+.empty {
+  margin: 18px 0;
+  color: var(--dim);
+  text-align: center;
+  font: 19px var(--font-hand);
+}
+
+/* ---------- Guard ---------- */
+.switch {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.switch input {
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  accent-color: var(--ink);
+}
+
+.guard-status {
+  margin: -4px 0 16px 26px;
+  padding: 8px 10px;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--green);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--panel);
+  color: var(--dim);
+  font: 11px/1.4 var(--font-mono);
+}
+
+.field {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.field input[type="range"] {
+  padding: 0;
+  border: 0;
+  background: none;
+  accent-color: var(--ink);
+}
+
+.field output {
+  font: 800 14px var(--font-display);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 0;
+}
+
+.stats div {
+  padding: 10px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+}
+
+.stats div:nth-child(1) { border-top: 3px solid var(--berry); }
+.stats div:nth-child(2) { border-top: 3px solid var(--yellow); }
+.stats div:nth-child(3) { border-top: 3px solid var(--green); }
+
+.stats dt {
+  color: var(--dim);
+  font: 10px var(--font-mono);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.stats dd {
+  margin: 4px 0 0;
+  font: 800 22px var(--font-display);
+}

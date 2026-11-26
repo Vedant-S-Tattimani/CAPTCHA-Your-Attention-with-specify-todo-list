@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  const COLORS = ["#d9480f", "#f59f00", "#37b24d", "#4c6ef5", "#e64980"];
+  const COLORS = ["#36c5f0", "#e01e5a", "#ecb22e", "#2fbc81", "#111212"];
   const PIECES = 70;
   const DURATION_MS = 1400;
   const GRAVITY = 0.18;
