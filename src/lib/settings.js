@@ -11,6 +11,8 @@
     tasks: "tasks",
     stats: "stats",
     guardStatus: "guardStatus",
+    daily: "daily",
+    focusTaskId: "focusTaskId",
   });
 
   const STATUS_FRESH_MS = 2 * 60 * 1000;
@@ -23,6 +25,7 @@
     difficultyStep: 5, // shorts per difficulty level
     strictDuringFocus: true, // puzzle on every short while a work session runs
     notify: true,
+    dailyGoal: 4, // focus sessions per day
   });
 
   const EMPTY_STATS = Object.freeze({ shortsWatched: 0, secondsOnShorts: 0, puzzlesSolved: 0 });
@@ -47,6 +50,7 @@
       difficultyStep: clampInt(s.difficultyStep, 1, 100, DEFAULTS.difficultyStep),
       strictDuringFocus: bool(s.strictDuringFocus, DEFAULTS.strictDuringFocus),
       notify: bool(s.notify, DEFAULTS.notify),
+      dailyGoal: clampInt(s.dailyGoal, 1, 16, DEFAULTS.dailyGoal),
     };
   }
 

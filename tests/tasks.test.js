@@ -73,6 +73,14 @@ test("topTask returns the most important open task or null", () => {
   assert.equal(T.topTask(T.toggleTask(T.toggleTask(tasks, tasks[0].id), tasks[1].id)), null);
 });
 
+test("focusTask prefers the pinned open task, else falls back to topTask", () => {
+  const tasks = build([{ title: "a", priority: "low" }, { title: "b", priority: "high" }]);
+  assert.equal(T.focusTask(tasks, tasks[0].id).title, "a");
+  assert.equal(T.focusTask(tasks, null).title, "b");
+  assert.equal(T.focusTask(tasks, "missing").title, "b");
+  assert.equal(T.focusTask(T.toggleTask(tasks, tasks[0].id), tasks[0].id).title, "b", "done pinned task is skipped");
+});
+
 test("isOverdue only flags open tasks past their deadline", () => {
   const [task] = build([{ title: "a", deadline: "2026-01-01" }]);
   assert.equal(T.isOverdue(task, "2026-01-02"), true);

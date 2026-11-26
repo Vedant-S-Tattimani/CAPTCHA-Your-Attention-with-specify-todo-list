@@ -35,9 +35,24 @@ By default the first puzzle appears on the **3rd** short (or on every short duri
 
 ## Using it
 
-- **Focus tab**: start, pause, reset or skip the Pomodoro timer. Set the work and break lengths in minutes.
-- **Tasks tab**: add tasks with a tag (Work, Study, Personal, Health, Other), a priority and an optional deadline. Tasks sort by status, then priority, then deadline. Overdue tasks are flagged.
-- **Guard tab**: turn the Shorts guard on or off, choose how often puzzles appear and how quickly they get harder, and see your stats.
+- **Focus tab**: start, pause, reset or skip the Pomodoro timer. A bar of dots tracks today's sessions against your daily goal. Under *Timer settings* you can change the work and break lengths and the daily goal.
+- **Tasks tab**: add tasks with a tag (Work, Study, Personal, Health, Other), a priority and an optional deadline. Press 🎯 on a task to focus on it: it shows on the timer and on every Shorts puzzle. Finishing a task earns XP (and confetti).
+- **Insights tab**: your level and XP, your streak, the Focus Garden, and 7-day charts of focus minutes and Shorts watched.
+- **Guard tab**: turn the Shorts guard on or off, choose how often puzzles appear and how quickly they get harder, and see all-time stats.
+
+### Motivation features
+
+| Feature | How it works |
+|---------|--------------|
+| 🔥 Streak | Days in a row with at least one finished focus session. Today doesn't break it until the day is over. |
+| 🌱 Focus Garden | One plant per day for the last week. It sprouts with your first session and blooms at your daily goal. |
+| ⭐ Levels | XP from finished sessions (10), finished tasks (5) and solved puzzles (2). Seven levels, from Seedling to Zen Guardian. |
+| 🧩 Puzzles | A mix of math and "what comes next?" number sequences. Both get harder the more Shorts you watch. |
+| 🔔 Break tips | When a work session ends, the notification shows your progress towards today's goal and a break idea. |
+| ⌨️ Shortcut | <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> starts or pauses the timer from any page. Change it at `chrome://extensions/shortcuts`. |
+| 👋 Welcome page | Opens once on first install with a 3-step quick start. |
+
+The daily history keeps the last 60 days.
 
 ## Project layout
 
@@ -50,10 +65,14 @@ src/
     pomodoro.js          Timer state
     tasks.js             Task list operations
     settings.js          Storage keys, settings validation, stats
+    progress.js          Daily log, streaks, XP/levels, garden growth
   content/
     shorts-guard.js      Runs on YouTube, detects Shorts, shows the puzzle overlay
     overlay-style.js     Overlay styles, applied inside the overlay's shadow root
   popup/                 Toolbar popup UI
+    insights.js          Level card, Focus Garden, weekly charts
+    celebrate.js         Confetti (skipped if the system asks for reduced motion)
+  welcome/               First-install welcome page
   icons/                 From CAPTCHA-Your-Attention
 tests/                   Unit tests (Node's built-in test runner)
 ```

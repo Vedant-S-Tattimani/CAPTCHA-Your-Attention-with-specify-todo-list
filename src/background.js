@@ -1,9 +1,20 @@
 /* Background service worker: owns the Pomodoro timer so it keeps running with the popup closed. */
-importScripts("lib/settings.js", "lib/pomodoro.js");
+importScripts("lib/settings.js", "lib/pomodoro.js", "lib/progress.js");
 
 const { KEYS, sanitizeSettings } = self.FocusSettings;
 const P = self.FocusPomodoro;
+const G = self.FocusProgress;
 const ALARM = "pomodoro-phase-end";
+
+const BREAK_TIPS = [
+  "Stand up and stretch your arms and back.",
+  "Drink a glass of water.",
+  "Look at something 20 metres away for 20 seconds.",
+  "Take five slow, deep breaths.",
+  "Walk around for a minute.",
+  "Roll your shoulders and relax your jaw.",
+  "Step away from the screen. No Shorts!",
+];
 
 async function load() {
   const data = await chrome.storage.local.get([KEYS.settings, KEYS.pomodoro]);
@@ -26,17 +37,36 @@ async function updateBadge(state) {
   await chrome.action.setBadgeBackgroundColor({ color: state.mode === "work" ? "#d9480f" : "#2b8a3e" });
 }
 
-async function notifyPhase(nextState, settings) {
+/** Adds a finished work session to today's log. Returns today's session count. */
+async function recordFocusSession(settings) {
+  const key = G.dayKey(new Date());
+  const data = await chrome.storage.local.get(KEYS.daily);
+  const log = G.recordActivity(data[KEYS.daily], key, { sessions: 1, focusMinutes: settings.workMinutes });
+  await chrome.storage.local.set({ [KEYS.daily]: log });
+  return log[key].sessions;
+}
+
+function phaseMessage(nextState, settings, sessionsToday) {
+  if (nextState.mode !== "break") {
+    return { title: "Break over", message: `Back to it: ${settings.workMinutes} minutes of focus.` };
+  }
+  const tip = BREAK_TIPS[Math.floor(Math.random() * BREAK_TIPS.length)];
+  if (sessionsToday === settings.dailyGoal) {
+    return { title: "Daily goal reached! 🌳", message: `${sessionsToday} focus sessions today. Your garden is in full bloom. ${tip}` };
+  }
+  return {
+    title: `Session ${sessionsToday} of ${settings.dailyGoal} done 🌱`,
+    message: `Take a ${settings.breakMinutes}-minute break. ${tip}`,
+  };
+}
+
+async function notifyPhase(nextState, settings, sessionsToday) {
   if (!settings.notify) return;
-  const isBreak = nextState.mode === "break";
   try {
     await chrome.notifications.create({
       type: "basic",
       iconUrl: "icons/icon128.png",
-      title: isBreak ? "Work session done" : "Break over",
-      message: isBreak
-        ? `Nice work. Take a ${settings.breakMinutes}-minute break.`
-        : `Back to it: ${settings.workMinutes} minutes of focus.`,
+      ...phaseMessage(nextState, settings, sessionsToday),
     });
   } catch (error) {
     console.warn("[Focus Guard] notification failed", error);
@@ -48,7 +78,8 @@ async function finishPhase() {
   if (!state.running) return;
   const next = P.advance(state, settings, Date.now());
   await save(next);
-  await notifyPhase(next, settings);
+  const sessionsToday = state.mode === "work" ? await recordFocusSession(settings) : 0;
+  await notifyPhase(next, settings, sessionsToday);
 }
 
 const ACTIONS = {
@@ -116,7 +147,18 @@ async function injectIntoOpenYouTubeTabs() {
 }
 
 chrome.runtime.onStartup.addListener(() => recover().catch((e) => console.error("[Focus Guard] recover failed", e)));
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener((details) => {
   recover().catch((e) => console.error("[Focus Guard] install init failed", e));
   injectIntoOpenYouTubeTabs().catch((e) => console.error("[Focus Guard] injection failed", e));
+  if (details.reason === "install") {
+    chrome.tabs.create({ url: chrome.runtime.getURL("welcome/welcome.html") }).catch((e) => console.warn(e));
+  }
+});
+
+/* Keyboard shortcut (Alt+Shift+F by default) starts or pauses the timer from any page. */
+chrome.commands.onCommand.addListener((command) => {
+  if (command !== "toggle-timer") return;
+  load()
+    .then(({ state }) => handleTimerAction(state.running ? "pause" : "start"))
+    .catch((e) => console.error("[Focus Guard] shortcut failed", e));
 });

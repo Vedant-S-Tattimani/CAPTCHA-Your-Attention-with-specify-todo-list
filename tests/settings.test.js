@@ -11,6 +11,12 @@ test("sanitizeSettings fills defaults and clamps ranges", () => {
   assert.equal(s.workMinutes, 180);
 });
 
+test("dailyGoal defaults to 4 and is clamped", () => {
+  assert.equal(S.sanitizeSettings(null).dailyGoal, 4);
+  assert.equal(S.sanitizeSettings({ dailyGoal: 0 }).dailyGoal, 1);
+  assert.equal(S.sanitizeSettings({ dailyGoal: 99 }).dailyGoal, 16);
+});
+
 test("addStats adds without mutating and rejects garbage", () => {
   const base = { shortsWatched: 2, secondsOnShorts: 10, puzzlesSolved: 1 };
   const next = S.addStats(base, { shortsWatched: 1, puzzlesSolved: 2 });

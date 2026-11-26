@@ -50,6 +50,32 @@ h2 {
   overflow-wrap: anywhere;
 }
 
+.kind {
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #d9480f;
+}
+
+.card {
+  animation: pop-in 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+  }
+}
+
 .question {
   margin-bottom: 12px;
   font: 600 26px/1.2 ui-monospace, "Cascadia Mono", Consolas, monospace;

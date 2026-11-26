@@ -1,6 +1,54 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { generatePuzzle, difficultyFor, isCorrect, evaluate, MAX_DIFFICULTY } = require("../src/lib/captcha.js");
+const {
+  generatePuzzle,
+  generateSequence,
+  generateChallenge,
+  difficultyFor,
+  isCorrect,
+  evaluate,
+  MAX_DIFFICULTY,
+} = require("../src/lib/captcha.js");
+
+test("generateSequence answer continues the shown pattern", () => {
+  for (let level = 1; level <= MAX_DIFFICULTY; level++) {
+    for (let run = 0; run < 200; run++) {
+      const { kind, text, answer } = generateSequence(level);
+      assert.equal(kind, "sequence");
+      const nums = text.replace(", ?", "").split(", ").map(Number);
+      assert.equal(nums.length, 4);
+      const diffs = nums.slice(1).map((n, i) => n - nums[i]);
+      const ratios = nums.slice(1).map((n, i) => n / nums[i]);
+      const additive = diffs.every((d) => d === diffs[0]);
+      const multiplicative = ratios.every((r) => r === ratios[0]);
+      assert.ok(additive || multiplicative, `pattern unclear: ${text}`);
+      const expected = additive ? nums[3] + diffs[0] : nums[3] * ratios[0];
+      assert.equal(answer, expected, text);
+    }
+  }
+});
+
+test("easy sequences only add; geometric ones appear from level 3", () => {
+  const kinds = new Set();
+  for (let i = 0; i < 300; i++) {
+    const nums = generateSequence(1).text.replace(", ?", "").split(", ").map(Number);
+    assert.equal(nums[1] - nums[0], nums[2] - nums[1]);
+    const hard = generateSequence(4).text.replace(", ?", "").split(", ").map(Number);
+    kinds.add(hard[1] - hard[0] === hard[2] - hard[1] ? "add" : "multiply");
+  }
+  assert.deepEqual([...kinds].sort(), ["add", "multiply"]);
+});
+
+test("generateChallenge mixes math and sequence puzzles", () => {
+  const kinds = new Set();
+  for (let i = 0; i < 200; i++) {
+    const c = generateChallenge(2);
+    kinds.add(c.kind);
+    assert.equal(typeof c.prompt, "string");
+    assert.ok(c.text.endsWith("?"));
+  }
+  assert.deepEqual([...kinds].sort(), ["math", "sequence"]);
+});
 
 /** Deterministic RNG that cycles through the given values. */
 function sequence(values) {

@@ -7,10 +7,17 @@
   </head>
   <body>
     <header class="top">
-      <h1>Focus Guard <span class="version" id="version"></span></h1>
+      <div class="title-row">
+        <h1>Focus Guard <span class="version" id="version"></span></h1>
+        <div class="chips">
+          <span class="chip" id="chip-streak" title="Days in a row with a finished focus session">🔥 0</span>
+          <span class="chip chip-level" id="chip-level" title="Your level">Lv 1</span>
+        </div>
+      </div>
       <nav class="tabs" role="tablist" aria-label="Sections">
         <button role="tab" id="tab-focus" aria-controls="panel-focus" aria-selected="true">Focus</button>
         <button role="tab" id="tab-tasks" aria-controls="panel-tasks" aria-selected="false" tabindex="-1">Tasks</button>
+        <button role="tab" id="tab-insights" aria-controls="panel-insights" aria-selected="false" tabindex="-1">Insights</button>
         <button role="tab" id="tab-guard" aria-controls="panel-guard" aria-selected="false" tabindex="-1">Guard</button>
       </nav>
     </header>
@@ -34,11 +41,30 @@
           <button id="btn-reset" class="ghost">Reset</button>
           <button id="btn-skip" class="ghost" title="Jump to the next phase">Skip</button>
         </div>
+        <p class="focus-on" id="focus-on" hidden>
+          <span class="focus-on-label">🎯 Focusing on</span>
+          <strong id="focus-on-title"></strong>
+        </p>
         <p class="hint" id="focus-hint"></p>
-        <div class="minutes">
-          <label>Work <input type="number" id="work-minutes" min="1" max="180" /> min</label>
-          <label>Break <input type="number" id="break-minutes" min="1" max="180" /> min</label>
+
+        <div class="goal" aria-labelledby="goal-label">
+          <div class="goal-head">
+            <span id="goal-label">Today's goal</span>
+            <span class="goal-count" id="goal-count">0 / 4</span>
+          </div>
+          <ol class="goal-dots" id="goal-dots"></ol>
+          <p class="goal-msg" id="goal-msg"></p>
         </div>
+
+        <details class="timer-settings">
+          <summary>Timer settings</summary>
+          <div class="minutes">
+            <label>Work <input type="number" id="work-minutes" min="1" max="180" /> min</label>
+            <label>Break <input type="number" id="break-minutes" min="1" max="180" /> min</label>
+            <label>Goal <input type="number" id="daily-goal" min="1" max="16" /> / day</label>
+          </div>
+          <p class="hint-left">Shortcut: <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> starts or pauses the timer from any page.</p>
+        </details>
       </section>
 
       <!-- Tasks (from Specify) -->
@@ -65,6 +91,9 @@
         <p class="empty" id="task-empty">No tasks yet. Add one above.</p>
         <button id="btn-clear-done" class="link">Clear finished tasks</button>
       </section>
+
+      <!-- Streaks, level, garden and weekly charts (popup/insights.js) -->
+      <section id="panel-insights" role="tabpanel" aria-labelledby="tab-insights" hidden></section>
 
       <!-- Shorts guard (from CAPTCHA-Your-Attention) -->
       <section id="panel-guard" role="tabpanel" aria-labelledby="tab-guard" hidden>
@@ -103,6 +132,9 @@
     <script src="../lib/settings.js"></script>
     <script src="../lib/pomodoro.js"></script>
     <script src="../lib/tasks.js"></script>
+    <script src="../lib/progress.js"></script>
+    <script src="insights.js"></script>
+    <script src="celebrate.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

@@ -19,6 +19,12 @@
   --tag-health: #b2f2bb;
   --tag-other: #fff3bf;
   --danger: #c92a2a;
+
+  /* Insights (chart colours validated for colour-blind separation and contrast) */
+  --chart-focus: #d9480f;
+  --chart-shorts: #4c6ef5;
+  --sky: #e7f5ff;
+  --soil: #c4a47c;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -34,6 +40,10 @@
     --tag-health: #24572f;
     --tag-other: #615424;
     --danger: #ffa8a8;
+    --chart-focus: #e8590c;
+    --chart-shorts: #5c7cfa;
+    --sky: #1d2a36;
+    --soil: #5c4a35;
   }
 }
 
@@ -463,8 +473,453 @@ select {
   font: 600 20px var(--font-num);
 }
 
+/* ---------- Header chips ---------- */
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.title-row h1 {
+  margin: 0;
+}
+
+.chips {
+  display: flex;
+  gap: 6px;
+}
+
+.chip {
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  background: var(--card);
+  font: 600 12px var(--font-ui);
+  white-space: nowrap;
+}
+
+.chip-level {
+  border-color: transparent;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* ---------- Focus: running glow, focus task, goal ---------- */
+.dial.running .progress {
+  filter: drop-shadow(0 0 4px var(--accent));
+}
+
+.dial.running .clock {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  50% {
+    opacity: 0.75;
+  }
+}
+
+.focus-on {
+  display: grid;
+  gap: 2px;
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 4px 12px 12px 12px;
+  background: var(--tag-other);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.focus-on-label {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.goal {
+  margin-top: 6px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+}
+
+.goal-head {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+}
+
+.goal-count {
+  font-family: var(--font-num);
+}
+
+.goal-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 6px;
+  padding: 0;
+  list-style: none;
+}
+
+.goal-dot {
+  flex: 1;
+  min-width: 14px;
+  height: 8px;
+  border-radius: 99px;
+  background: var(--line);
+}
+
+.goal-dot.filled {
+  background: var(--break);
+}
+
+.goal-dot.latest {
+  animation: grow-in 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes grow-in {
+  from {
+    transform: scaleX(0.2);
+  }
+}
+
+.goal-msg {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.timer-settings {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.timer-settings summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.timer-settings .minutes {
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.timer-settings .minutes input {
+  width: 50px;
+}
+
+kbd {
+  padding: 1px 5px;
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--card);
+  font: 11px var(--font-num);
+}
+
+.hint-left {
+  margin: 8px 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* ---------- Tasks: actions and pinned task ---------- */
+.task-actions {
+  display: flex;
+  gap: 2px;
+}
+
+.icon-btn {
+  padding: 2px 6px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--ink);
+}
+
+.icon-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.focus-btn {
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+
+.focus-btn.on,
+.focus-btn:hover:not(:disabled) {
+  filter: none;
+  opacity: 1;
+}
+
+.task.pinned {
+  outline: 2px solid var(--work);
+  outline-offset: 1px;
+}
+
+/* ---------- Insights ---------- */
+.level-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--work), #f59f00);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(217, 72, 15, 0.25);
+}
+
+.level-badge {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  font: 700 20px var(--font-num);
+}
+
+.level-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.xp-bar {
+  height: 6px;
+  margin: 6px 0 4px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+}
+
+.xp-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #fff;
+  transition: width 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.level-meta {
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+.streak-big {
+  display: grid;
+  justify-items: center;
+  line-height: 1.1;
+}
+
+.streak-big .flame {
+  font-size: 20px;
+}
+
+.streak-big strong {
+  font: 700 20px var(--font-num);
+}
+
+.streak-big small {
+  font-size: 10px;
+  opacity: 0.9;
+}
+
+.garden {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin: 0;
+  padding: 10px 8px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(to bottom, var(--sky) 0%, var(--card) 75%);
+  list-style: none;
+}
+
+.plot {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+}
+
+.plot.today .plant {
+  animation: sway 3s ease-in-out infinite;
+  transform-origin: 50% 95%;
+}
+
+@keyframes sway {
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+.plant {
+  width: 100%;
+  max-width: 40px;
+  height: 56px;
+}
+
+.plant .soil {
+  fill: var(--soil);
+}
+
+.plant .seed {
+  fill: var(--muted);
+}
+
+.plant .stem {
+  fill: none;
+  stroke: #2b8a3e;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.plant .leaf {
+  fill: #40c057;
+}
+
+.plant .petal {
+  fill: #f783ac;
+}
+
+.plant .bloom-center {
+  fill: #fcc419;
+}
+
+.plot-day {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.plot.today .plot-day {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.chart-card {
+  margin: 0 0 10px;
+  padding: 10px 12px 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+}
+
+.chart-card figcaption {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.chart-title {
+  font-weight: 600;
+}
+
+.chart-total {
+  margin-left: auto;
+  color: var(--muted);
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.swatch.s-focus,
+.bar.s-focus {
+  background: var(--chart-focus);
+  fill: var(--chart-focus);
+}
+
+.swatch.s-shorts,
+.bar.s-shorts {
+  background: var(--chart-shorts);
+  fill: var(--chart-shorts);
+}
+
+.chart-wrap {
+  position: relative;
+}
+
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.chart .hit {
+  fill: transparent;
+}
+
+.chart .col:hover .bar,
+.chart .col:focus .bar {
+  opacity: 0.8;
+}
+
+.chart .col:focus {
+  outline: none;
+}
+
+.chart .baseline {
+  stroke: var(--line);
+}
+
+.chart .axis-label {
+  fill: var(--muted);
+  font: 10px var(--font-ui);
+  text-anchor: middle;
+}
+
+.chart .axis-label.is-today {
+  fill: var(--ink);
+  font-weight: 700;
+}
+
+.chart-tip {
+  position: absolute;
+  top: -6px;
+  transform: translateX(-50%);
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
     transition: none !important;
+    animation: none !important;
   }
 }

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Focus Guard",
-  "version": "1.2.0",
-  "description": "Pomodoro timer and sticky-note tasks, plus math puzzles that interrupt YouTube Shorts doomscrolling.",
+  "version": "2.0.0",
+  "description": "Focus timer, sticky-note tasks, a growing focus garden and streaks, plus puzzles that stop YouTube Shorts doomscrolling.",
   "action": {
     "default_popup": "popup/popup.html",
     "default_title": "Focus Guard",
@@ -39,6 +39,7 @@
         "lib/captcha.js",
         "lib/pomodoro.js",
         "lib/tasks.js",
+        "lib/progress.js",
         "content/overlay-style.js",
         "content/shorts-guard.js"
       ],
@@ -48,5 +49,13 @@
   "host_permissions": [
     "https://www.youtube.com/*",
     "https://m.youtube.com/*"
-  ]
+  ],
+  "commands": {
+    "toggle-timer": {
+      "suggested_key": {
+        "default": "Alt+Shift+F"
+      },
+      "description": "Start or pause the focus timer"
+    }
+  }
 }

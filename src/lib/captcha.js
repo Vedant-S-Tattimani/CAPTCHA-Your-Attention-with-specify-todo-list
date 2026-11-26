@@ -61,6 +61,33 @@
     return { text, answer: evaluate(numbers, operators) };
   }
 
+  const SEQUENCE_TERMS = 4;
+  const SEQUENCE_SHARE = 0.35;
+
+  /**
+   * "What comes next?" puzzle. Easy levels add a constant; from level 3 it may multiply instead.
+   * @returns {{ kind: "sequence", text: string, answer: number, prompt: string }}
+   */
+  function generateSequence(difficulty, random = Math.random) {
+    const level = clampDifficulty(difficulty);
+    const geometric = level >= 3 && random() < 0.5;
+    const start = geometric ? randomInt(random, 1, 5) : randomInt(random, 1, 10 * level);
+    const step = geometric ? randomInt(random, 2, 3) : randomInt(random, 2, 3 + 2 * level);
+    const terms = [start];
+    for (let i = 1; i <= SEQUENCE_TERMS; i++) {
+      terms.push(geometric ? terms[i - 1] * step : terms[i - 1] + step);
+    }
+    const answer = terms.pop();
+    return { kind: "sequence", text: `${terms.join(", ")}, ?`, answer, prompt: "What comes next?" };
+  }
+
+  /** A math or sequence puzzle, chosen at random. Same shape for both kinds. */
+  function generateChallenge(difficulty, random = Math.random) {
+    if (random() < SEQUENCE_SHARE) return generateSequence(difficulty, random);
+    const { text, answer } = generatePuzzle(difficulty, random);
+    return { kind: "math", text: `${text} = ?`, answer, prompt: "Solve to keep watching" };
+  }
+
   /** Difficulty rises by one every `stepEvery` shorts watched this session. */
   function difficultyFor(shortsThisSession, stepEvery) {
     const step = Math.max(1, Math.floor(stepEvery) || 1);
@@ -73,7 +100,7 @@
     return Number(trimmed) === answer;
   }
 
-  const api = { generatePuzzle, difficultyFor, isCorrect, evaluate, MAX_DIFFICULTY };
+  const api = { generatePuzzle, generateSequence, generateChallenge, difficultyFor, isCorrect, evaluate, MAX_DIFFICULTY };
   root.FocusCaptcha = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

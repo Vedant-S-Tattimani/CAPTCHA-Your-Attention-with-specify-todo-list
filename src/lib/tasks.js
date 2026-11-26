@@ -73,6 +73,12 @@
     return sortTasks(tasks).find((t) => !t.done) || null;
   }
 
+  /** The task the user pinned with "Focus on this", if still open; otherwise the top task. */
+  function focusTask(tasks, focusId) {
+    const pinned = focusId ? tasks.find((t) => t.id === focusId && !t.done) : null;
+    return pinned || topTask(tasks);
+  }
+
   function isOverdue(task, todayIso) {
     return Boolean(task.deadline && !task.done && task.deadline < todayIso);
   }
@@ -89,6 +95,7 @@
     sortTasks,
     filterTasks,
     topTask,
+    focusTask,
     isOverdue,
   };
   root.FocusTasks = api;
