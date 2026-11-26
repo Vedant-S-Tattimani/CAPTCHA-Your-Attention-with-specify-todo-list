@@ -35,16 +35,17 @@
       </div>
       <span class="version" id="version"></span>
       <nav class="tabs" role="tablist" aria-label="Sections">
-        <button role="tab" id="tab-focus" aria-controls="panel-focus" aria-selected="true">Focus</button>
+        <!-- Guard is the main feature, so it comes first and opens by default -->
+        <button role="tab" id="tab-guard" aria-controls="panel-guard" aria-selected="true">Guard</button>
+        <button role="tab" id="tab-focus" aria-controls="panel-focus" aria-selected="false" tabindex="-1">Focus</button>
         <button role="tab" id="tab-tasks" aria-controls="panel-tasks" aria-selected="false" tabindex="-1">Tasks</button>
         <button role="tab" id="tab-insights" aria-controls="panel-insights" aria-selected="false" tabindex="-1">Insights</button>
-        <button role="tab" id="tab-guard" aria-controls="panel-guard" aria-selected="false" tabindex="-1">Guard</button>
       </nav>
     </header>
 
     <main>
       <!-- Pomodoro (from Specify) -->
-      <section id="panel-focus" role="tabpanel" aria-labelledby="tab-focus">
+      <section id="panel-focus" role="tabpanel" aria-labelledby="tab-focus" hidden>
         <div class="dial" id="dial" data-mode="work">
           <svg viewBox="0 0 120 120" aria-hidden="true">
             <circle class="track" cx="60" cy="60" r="54" />
@@ -120,7 +121,7 @@
       <section id="panel-insights" role="tabpanel" aria-labelledby="tab-insights" hidden></section>
 
       <!-- Shorts guard (from CAPTCHA-Your-Attention) -->
-      <section id="panel-guard" role="tabpanel" aria-labelledby="tab-guard" hidden>
+      <section id="panel-guard" role="tabpanel" aria-labelledby="tab-guard">
         <label class="switch">
           <input type="checkbox" id="guard-enabled" />
           <span>Interrupt YouTube Shorts with puzzles</span>
