@@ -1,78 +1,204 @@
 /* Insights tab: level card, Focus Garden and weekly charts. Tokens come from popup.css. */
 
-/* ---------- Level card: an ink panel like the reference's dock ---------- */
+/*
+ * ---------- Level card ----------
+ * A light canvas card (ink border, yellow offset shadow):
+ *   [LV badge] [title / level n of 7]  | streak (flame, count, week squares)
+ *   [XP labels + segmented bar       ]  |
+ */
 .level-card {
-  position: relative;
   display: grid;
   grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    "badge head streak"
+    "xp    xp   streak";
   align-items: center;
-  gap: 12px;
-  padding: 14px;
+  gap: 12px 12px;
+  padding: 14px 14px 14px 14px;
+  border: 1px solid var(--ink);
   border-radius: var(--radius-lg);
-  background: #111212;
-  color: #ffffff;
+  background-color: var(--panel);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 12px 12px;
   box-shadow: 4px 4px 0 var(--yellow);
 }
 
 .level-badge {
+  grid-area: badge;
   display: grid;
   place-items: center;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
+  align-content: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius);
   background: var(--yellow);
   color: #111212;
-  font: 800 22px var(--font-display);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.level-badge span {
+  font: 700 9px/1 var(--font-mono);
+  letter-spacing: 1px;
+}
+
+.level-badge strong {
+  font: 800 22px/1 var(--font-display);
+}
+
+.level-head {
+  grid-area: head;
+  min-width: 0;
 }
 
 .level-title {
-  font: 800 17px/1 var(--font-display);
+  font: 800 18px/1.05 var(--font-display);
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
+.level-sub {
+  margin-top: 4px;
+  color: var(--dim);
+  font: 10px var(--font-mono);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+/* XP: labels above a segmented bar */
+.xp {
+  grid-area: xp;
+}
+
+.xp-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+  color: var(--dim);
+  font: 10px var(--font-mono);
+  letter-spacing: 0.3px;
+}
+
+.xp-labels strong {
+  color: var(--ink);
+}
+
 .xp-bar {
-  height: 8px;
-  margin: 8px 0 5px;
+  position: relative;
+  height: 10px;
+  border: 1px solid var(--ink);
   border-radius: 2px;
-  background: #2c2e2e;
+  background: var(--raise);
   overflow: hidden;
+}
+
+/* 10 segments: thin panel-coloured gaps drawn over the bar */
+.xp-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), var(--panel) calc(10% - 1px) 10%);
 }
 
 .xp-fill {
   display: block;
   height: 100%;
-  background: repeating-linear-gradient(90deg, var(--yellow) 0 8px, #f5c856 8px 10px);
+  background: var(--yellow);
   transition: width 700ms var(--spring);
 }
 
-.level-meta {
-  color: #a3a6a9;
-  font: 10px var(--font-mono);
-  letter-spacing: 0.4px;
+/* Streak: flame + count, label, last 7 days */
+.streak {
+  grid-area: streak;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  align-self: stretch;
+  align-content: center;
+  padding-left: 12px;
+  border-left: 1px dashed var(--rule-2);
+}
+
+.streak-count {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.flame {
+  width: 22px;
+  height: 22px;
+}
+
+.flame-outer {
+  fill: var(--rule-2);
+}
+
+.flame-inner {
+  fill: var(--raise);
+}
+
+.streak.lit .flame-outer {
+  fill: var(--berry);
+}
+
+.streak.lit .flame-inner {
+  fill: var(--yellow);
+}
+
+.streak.lit .flame {
+  animation: flicker 2.4s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+
+@keyframes flicker {
+  50% {
+    transform: scale(1.08) rotate(-3deg);
+  }
+}
+
+.streak-count strong {
+  font: 800 24px/1 var(--font-display);
+  color: var(--faint);
+}
+
+.streak.lit .streak-count strong {
+  color: var(--ink);
+}
+
+.streak small {
+  color: var(--dim);
+  font: 9px var(--font-mono);
+  letter-spacing: 0.8px;
   text-transform: uppercase;
 }
 
-.streak-big {
-  display: grid;
-  justify-items: center;
-  padding-left: 12px;
-  border-left: 1px dashed #3b3e3e;
-  line-height: 1.1;
+.week-dots {
+  display: flex;
+  gap: 3px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
 }
 
-.streak-big .flame {
-  font-size: 18px;
+.week-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 1px;
+  background: var(--raise);
+  box-shadow: inset 0 0 0 1px var(--rule-2);
 }
 
-.streak-big strong {
-  color: var(--berry);
-  font: 800 24px var(--font-display);
+.week-dot.on {
+  background: var(--green);
+  box-shadow: none;
 }
 
-.streak-big small {
-  color: #a3a6a9;
-  font: 14px/1 var(--font-hand);
+.week-dot.today {
+  outline: 1px solid var(--ink);
+  outline-offset: 1px;
 }
 
 .hint-left {

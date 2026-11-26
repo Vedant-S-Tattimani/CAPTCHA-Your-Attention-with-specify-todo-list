@@ -118,7 +118,16 @@
     const current = LEVELS[index];
     const next = LEVELS[index + 1] || null;
     const progress = next ? (safe - current.xp) / (next.xp - current.xp) : 1;
-    return { level: index + 1, title: current.title, xp: safe, nextXp: next ? next.xp : null, progress };
+    return {
+      level: index + 1,
+      maxLevel: LEVELS.length,
+      title: current.title,
+      nextTitle: next ? next.title : null,
+      xp: safe,
+      levelStartXp: current.xp,
+      nextXp: next ? next.xp : null,
+      progress,
+    };
   }
 
   /** Plant growth stage 0..4 for one garden plot, from sessions done vs the daily goal. */

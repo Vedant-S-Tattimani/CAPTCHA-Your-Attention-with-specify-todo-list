@@ -106,7 +106,8 @@
     const streakDays = G.streak(daily, today);
     const level = G.levelFor(G.xpFor(G.totals(daily)));
 
-    $("chip-streak").textContent = `${streakDays > 0 ? "🔥" : "🌑"} ${streakDays}`;
+    $("chip-streak").textContent = `🔥 ${streakDays}`;
+    $("chip-streak").classList.toggle("cold", streakDays === 0);
     $("chip-streak").title = `${streakDays}-day focus streak`;
     $("chip-level").textContent = `Lv ${level.level}`;
     $("chip-level").title = `${level.title} · ${level.xp} XP`;

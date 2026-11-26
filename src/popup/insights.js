@@ -129,28 +129,75 @@
 
   /* ---------- Level card ---------- */
 
-  function levelCard(log, streakDays) {
-    const info = G.levelFor(G.xpFor(G.totals(log)));
-    const bar = el("div", { className: "xp-bar" }, [el("span", { className: "xp-fill" })]);
-    bar.firstChild.style.width = `${Math.round(info.progress * 100)}%`;
+  /** Drawn flame (outer + inner). Coloured by CSS: grey when the streak is 0, berry/yellow when lit. */
+  function flame() {
+    return svg("svg", { viewBox: "0 0 24 24", class: "flame", "aria-hidden": "true" }, [
+      svg("path", {
+        class: "flame-outer",
+        d: "M12 22c-4.4 0-8-3.1-8-7.5 0-3.1 1.9-5.4 3.6-7.2.4 1.6 1.2 2.8 2.4 3.4C9.6 7 11.3 4.1 14 2c.3 3.3 2 5.2 3.6 7 1.4 1.6 2.4 3.3 2.4 5.5C20 18.9 16.4 22 12 22z",
+      }),
+      svg("path", {
+        class: "flame-inner",
+        d: "M12 20c-1.9 0-3.3-1.3-3.3-3.1 0-1.6 1-2.6 2-3.6.1 1 .6 1.6 1.3 1.9.2-1.7 1-3 2.1-3.9.2 1.7 1.2 2.8 1.2 4.6 0 2.4-1.5 4.1-3.3 4.1z",
+      }),
+    ]);
+  }
+
+  function xpSection(info) {
+    const pct = Math.round(info.progress * 100);
+    const fill = el("span", { className: "xp-fill" });
+    fill.style.width = `${pct}%`;
+    const bar = el("div", { className: "xp-bar" }, [fill]);
     bar.setAttribute("role", "progressbar");
     bar.setAttribute("aria-valuemin", "0");
     bar.setAttribute("aria-valuemax", "100");
-    bar.setAttribute("aria-valuenow", String(Math.round(info.progress * 100)));
-    bar.setAttribute("aria-label", "Progress to next level");
-    const next = info.nextXp ? `${info.nextXp - info.xp} XP to level ${info.level + 1}` : "Max level reached";
+    bar.setAttribute("aria-valuenow", String(pct));
+    bar.setAttribute("aria-label", info.nextTitle ? `Progress to ${info.nextTitle}` : "Max level reached");
+
+    const left = info.nextXp ? `${info.xp} / ${info.nextXp} XP` : `${info.xp} XP`;
+    const right = info.nextTitle
+      ? [`${info.nextXp - info.xp} XP to `, el("strong", { textContent: info.nextTitle })]
+      : ["Max level 🏆"];
+    return el("div", { className: "xp" }, [
+      el("div", { className: "xp-labels" }, [el("span", { textContent: left }), el("span", {}, right)]),
+      bar,
+    ]);
+  }
+
+  /** Flame, count and the last 7 days as small squares (filled = focused that day). */
+  function streakSection(streakDays, days) {
+    const lit = streakDays > 0;
+    const week = el(
+      "ol",
+      { className: "week-dots" },
+      days.map((day) => {
+        const dot = el("li", { className: `week-dot${day.sessions > 0 ? " on" : ""}${day.isToday ? " today" : ""}` });
+        dot.title = `${day.isToday ? "Today" : day.label}: ${day.sessions > 0 ? "focused" : "no session"}`;
+        return dot;
+      })
+    );
+    const section = el("div", { className: `streak${lit ? " lit" : ""}` }, [
+      el("div", { className: "streak-count" }, [flame(), el("strong", { textContent: String(streakDays) })]),
+      el("small", { textContent: "day streak" }),
+      week,
+    ]);
+    section.setAttribute("aria-label", `${streakDays}-day focus streak`);
+    return section;
+  }
+
+  function levelCard(log, streakDays, days) {
+    const info = G.levelFor(G.xpFor(G.totals(log)));
     return el("section", { className: "level-card" }, [
-      el("div", { className: "level-badge", textContent: String(info.level) }),
-      el("div", { className: "level-body" }, [
+      el("div", { className: "level-badge" }, [
+        el("span", { textContent: "LV" }),
+        el("strong", { textContent: String(info.level) }),
+      ]),
+      el("div", { className: "level-head" }, [
         el("div", { className: "level-title", textContent: info.title }),
-        bar,
-        el("div", { className: "level-meta", textContent: `${info.xp} XP · ${next}` }),
+        el("div", { className: "level-sub", textContent: `Level ${info.level} of ${info.maxLevel}` }),
       ]),
-      el("div", { className: "streak-big" }, [
-        el("span", { className: "flame", textContent: streakDays > 0 ? "🔥" : "🌑" }),
-        el("strong", { textContent: String(streakDays) }),
-        el("small", { textContent: streakDays === 1 ? "day streak" : "days streak" }),
-      ]),
+      streakSection(streakDays, days),
+      xpSection(info),
     ]);
   }
 
@@ -164,7 +211,7 @@
     const streakDays = G.streak(log, today);
     const todayDay = days[days.length - 1];
     container.replaceChildren(
-      levelCard(log, streakDays),
+      levelCard(log, streakDays, days),
       el("h2", { textContent: "Focus garden" }),
       el("p", {
         className: "hint-left",

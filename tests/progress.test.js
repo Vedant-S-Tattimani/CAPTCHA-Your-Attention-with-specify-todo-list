@@ -55,13 +55,25 @@ test("lastDays returns n days oldest first with labels", () => {
 test("xp and levels", () => {
   const total = G.totals({ a: { sessions: 3, puzzles: 5, tasksDone: 2 } });
   assert.equal(G.xpFor(total), 30 + 10 + 10);
-  assert.deepEqual(G.levelFor(0), { level: 1, title: "Seedling", xp: 0, nextXp: 50, progress: 0 });
+  assert.deepEqual(G.levelFor(0), {
+    level: 1,
+    maxLevel: 7,
+    title: "Seedling",
+    nextTitle: "Sprout",
+    xp: 0,
+    levelStartXp: 0,
+    nextXp: 50,
+    progress: 0,
+  });
   const mid = G.levelFor(100);
   assert.equal(mid.level, 2);
   assert.equal(mid.progress, 0.5);
   const max = G.levelFor(99999);
   assert.equal(max.level, G.LEVELS.length);
   assert.equal(max.nextXp, null);
+  assert.equal(max.nextTitle, null);
+  assert.equal(mid.nextTitle, "Sapling");
+  assert.equal(mid.levelStartXp, 50);
   assert.equal(max.progress, 1);
   assert.equal(G.levelFor(-10).level, 1);
 });

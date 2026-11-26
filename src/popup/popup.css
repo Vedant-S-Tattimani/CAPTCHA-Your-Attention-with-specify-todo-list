@@ -235,6 +235,15 @@ h1 {
   color: #fff;
 }
 
+/* No streak yet: grey pill, grey flame */
+.chip-streak.cold {
+  --chip-cursor: var(--faint);
+  background: var(--raise);
+  color: var(--dim);
+  box-shadow: inset 0 0 0 1px var(--rule-2);
+  filter: grayscale(1);
+}
+
 .chip-level {
   --chip-cursor: var(--yellow);
   background: var(--yellow);
