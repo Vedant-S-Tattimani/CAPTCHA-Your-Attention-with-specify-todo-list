@@ -52,33 +52,9 @@
   --font-hand: "Shadows Into Light", "Segoe Print", "Comic Sans MS", cursive;
   --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
   --font-ui: "Segoe UI", system-ui, -apple-system, sans-serif;
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f1010;
-    --grid: #191b1b;
-    --panel: #161717;
-    --raise: #1f2121;
-    --ink: #f2f2f2;
-    --ink-hover: #d9d9d9;
-    --on-ink: #111212;
-    --dim: #a3a6a9;
-    --faint: #6f7274;
-    --rule: #2a2c2c;
-    --rule-2: #3b3e3e;
-    --cyan-strong: #36c5f0;
-    --danger: #ff6b93;
-    --note-cream: #4a3c18;
-    --note-mint: #173f2e;
-    --note-sky: #123a4b;
-    --note-blush: #4b1828;
-    --note-plain: #222424;
-    --chart-focus: #1c9fcf;
-    --chart-shorts: #e01e5a;
-    --dock: #262828;
-    --dock-edge: #3b3e3e;
-  }
+  /* Light theme only, even when the system is in dark mode (form controls and scrollbars too). */
+  color-scheme: light only;
 }
 
 * {

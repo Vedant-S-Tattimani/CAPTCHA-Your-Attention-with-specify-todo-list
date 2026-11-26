@@ -14,17 +14,9 @@
   --font-display: "Bitcount Prop Single", "Segoe UI", system-ui, sans-serif;
   --font-hand: "Shadows Into Light", "Segoe Print", "Comic Sans MS", cursive;
   --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f1010;
-    --grid: #1a1c1c;
-    --panel: #161717;
-    --ink: #f2f2f2;
-    --dim: #a3a6a9;
-    --rule: #2a2c2c;
-  }
+  /* Light theme only, even when the system is in dark mode. */
+  color-scheme: light only;
 }
 
 * {
