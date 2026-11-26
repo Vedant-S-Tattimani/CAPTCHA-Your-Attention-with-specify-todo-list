@@ -58,7 +58,14 @@ By default the first puzzle appears on the **3rd** video (or on every video duri
 ## Using it
 
 - **Focus tab**: start, pause, reset or skip the Pomodoro timer. A bar of dots tracks today's sessions against your daily goal. Under *Timer settings* you can change the work and break lengths and the daily goal.
-- **Tasks tab**: add tasks with a tag (Work, Study, Personal, Health, Other), a priority and an optional deadline. Press 🎯 on a task to focus on it: it shows on the timer and on every puzzle. Finishing a task earns XP (and confetti).
+- **Tasks tab**: everything Specify's task manager had:
+  - **Create, edit (✎), delete (×)** tasks with a tag (Work, Study, Personal, Health, Other), a priority and an optional deadline
+  - **Sort** by Smart (priority, then deadline), Deadline, Priority, Newest or A–Z; **search** and filter by tag
+  - **List or grid view** (your choice is remembered)
+  - **Pomodoro timer strip** at the top, the same timer as the Focus tab
+  - **Quick todos**: simple one-line todos to add, tick off and delete
+
+  Press 🎯 on a task to focus on it: it shows on the timer and on every puzzle. Finishing a task earns XP (and confetti).
 - **Guard tab** (opens first): turn the guard on or off, switch platforms on, pick puzzle types, choose how often puzzles appear and how quickly they get harder, and see all-time stats with a count per platform.
 - **Insights tab**: your level and XP, your streak, the Focus Garden, and 7-day charts of focus minutes and videos watched.
 
@@ -99,6 +106,7 @@ src/
   lib/                   Pure logic, shared by every part and covered by tests
     platforms.js         Supported sites, their feed addresses and video detection
     activity.js          Applies activity events to stats, daily log and lifetime totals
+    todos.js             Simple todos (add, tick, delete)
     captcha.js           Math and number-sequence generators
     puzzles.js           All six puzzle types, one shape, answer checking
     pomodoro.js          Timer state
@@ -109,7 +117,7 @@ src/
     shorts-guard.js      Runs on each guarded site, counts videos, shows the puzzle overlay
     puzzle-view.js       Renders any puzzle type (shared by the overlay and the popup demo)
     overlay-style.js     Overlay styles, applied inside the overlay's shadow root
-  popup/                 Toolbar popup UI (platform-picker.js: the Guard tab's platform switches)
+  popup/                 Toolbar popup UI (platform-picker.js: platform switches; tasks-view.js: Tasks tab)
     insights.js          Level card, Focus Garden, weekly charts
     celebrate.js         Confetti (skipped if the system asks for reduced motion)
   welcome/               First-install welcome page

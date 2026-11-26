@@ -10,7 +10,6 @@
   const { celebrate } = globalThis.FocusCelebrate;
 
   const RING_LENGTH = 2 * Math.PI * 54;
-  const TAG_LABELS = { work: "Work", study: "Study", personal: "Personal", health: "Health", other: "Other" };
   const $ = (id) => document.getElementById(id);
 
   let settings = sanitizeSettings(null);
@@ -20,8 +19,8 @@
   let totals = null; // lifetime counters for XP; null until the first event after upgrading
   let focusTaskId = null;
   let guardStatus;
-  let filter = { query: "", tag: "all" };
   let lastCompletedWork = null;
+  let tasksView = null;
   let puzzlePicker = null;
   let platformPicker = null;
 
@@ -42,13 +41,12 @@
 
   async function saveTasks(next) {
     tasks = next;
-    renderTasks();
+    renderFocusOn();
     await chrome.storage.local.set({ [KEYS.tasks]: tasks });
   }
 
   async function setFocusTask(id) {
     focusTaskId = id;
-    renderTasks();
     renderFocusOn();
     await chrome.storage.local.set({ [KEYS.focusTaskId]: id });
   }
@@ -172,6 +170,7 @@
     $("focus-hint").textContent = P.isFocusing(pomodoro) ? "Shorts will ask for a puzzle on every video." : "";
     $("tagline").textContent = taglineFor(pomodoro);
     renderStatusBar();
+    tasksView?.renderTimer();
 
     if (lastCompletedWork !== null && pomodoro.completedWork > lastCompletedWork) celebrate($("dial"));
     lastCompletedWork = pomodoro.completedWork;
@@ -193,92 +192,22 @@
     setInterval(renderTimer, 250);
   }
 
-  /* ---------- Tasks tab ---------- */
-  function onToggleTask(task, checkbox) {
-    const becomingDone = !task.done;
-    saveTasks(T.toggleTask(tasks, task.id))
-      .then(() => recordToday({ tasksDone: becomingDone ? 1 : -1 }))
-      .catch(reportError);
-    if (becomingDone) celebrate(checkbox);
-  }
-
-  function taskItem(task, today) {
-    const checkbox = el("input", { type: "checkbox", checked: task.done });
-    checkbox.setAttribute("aria-label", `Mark "${task.title}" ${task.done ? "not done" : "done"}`);
-    checkbox.addEventListener("change", () => onToggleTask(task, checkbox));
-
-    const info = el("div", { className: "task-info" }, [
-      el("span", { className: `pill ${task.priority}`, textContent: task.priority }),
-      el("span", { textContent: TAG_LABELS[task.tag] || "Other" }),
-    ]);
-    if (task.deadline) {
-      const overdue = T.isOverdue(task, today);
-      info.append(el("span", { className: overdue ? "overdue" : "", textContent: overdue ? `Overdue ${task.deadline}` : `Due ${task.deadline}` }));
-    }
-
-    const pinned = task.id === focusTaskId && !task.done;
-    const focusBtn = el("button", { className: `icon-btn focus-btn${pinned ? " on" : ""}`, textContent: "🎯" });
-    focusBtn.title = pinned ? "Stop focusing on this" : "Focus on this";
-    focusBtn.setAttribute("aria-pressed", String(pinned));
-    focusBtn.setAttribute("aria-label", `${pinned ? "Stop focusing on" : "Focus on"} "${task.title}"`);
-    focusBtn.disabled = task.done;
-    focusBtn.addEventListener("click", () => setFocusTask(pinned ? null : task.id).catch(reportError));
-
-    const del = el("button", { className: "icon-btn delete", textContent: "×", title: "Delete task" });
-    del.setAttribute("aria-label", `Delete "${task.title}"`);
-    del.addEventListener("click", () => saveTasks(T.removeTask(tasks, task.id)).catch(reportError));
-
-    const li = el("li", { className: `task${task.done ? " done" : ""}${pinned ? " pinned" : ""}` }, [
-      checkbox,
-      el("div", {}, [el("div", { className: "task-title", textContent: task.title }), info]),
-      el("div", { className: "task-actions" }, [focusBtn, del]),
-    ]);
-    li.dataset.tag = task.tag;
-    return li;
-  }
-
-  function renderTasks() {
-    const today = todayKey();
-    const visible = T.sortTasks(T.filterTasks(tasks, filter));
-    $("task-list").replaceChildren(...visible.map((t) => taskItem(t, today)));
-    $("task-empty").hidden = visible.length > 0;
-    $("task-empty").textContent = tasks.length ? "No tasks match." : "No tasks yet. Add one above.";
-    $("btn-clear-done").hidden = !tasks.some((t) => t.done);
-    renderFocusOn();
-  }
-
+  /* ---------- Tasks tab (popup/tasks-view.js) ---------- */
   function setupTasks() {
-    const tagOptions = T.TAGS.map((tag) => el("option", { value: tag, textContent: TAG_LABELS[tag] }));
-    $("task-tag").replaceChildren(...tagOptions);
-    $("task-filter").replaceChildren(
-      el("option", { value: "all", textContent: "All tags" }),
-      ...T.TAGS.map((tag) => el("option", { value: tag, textContent: TAG_LABELS[tag] }))
-    );
-
-    $("task-form").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const result = T.addTask(tasks, {
-        title: $("task-title").value,
-        tag: $("task-tag").value,
-        priority: $("task-priority").value,
-        deadline: $("task-deadline").value,
-      });
-      $("task-error").textContent = result.ok ? "" : result.error;
-      if (!result.ok) return;
-      $("task-title").value = "";
-      $("task-deadline").value = "";
-      saveTasks(result.tasks).catch(reportError);
-      $("task-title").focus();
+    tasksView = globalThis.FocusTasksView.setup({
+      getTasks: () => tasks,
+      saveTasks,
+      getFocusId: () => focusTaskId,
+      setFocusTask,
+      getSettings: () => settings,
+      saveSettings,
+      getPomodoro: () => pomodoro,
+      timer,
+      recordToday,
+      celebrate,
+      todayKey,
+      onError: reportError,
     });
-    $("task-search").addEventListener("input", (e) => {
-      filter = { ...filter, query: e.target.value };
-      renderTasks();
-    });
-    $("task-filter").addEventListener("change", (e) => {
-      filter = { ...filter, tag: e.target.value };
-      renderTasks();
-    });
-    $("btn-clear-done").addEventListener("click", () => saveTasks(T.clearDone(tasks)).catch(reportError));
   }
 
   /* ---------- Guard tab ---------- */
@@ -413,7 +342,8 @@
     daily = data[KEYS.daily] || {};
     focusTaskId = data[KEYS.focusTaskId] || null;
     renderSettings();
-    renderTasks();
+    tasksView.render();
+    renderFocusOn();
     renderTimer();
     renderProgress();
     renderStats(data[KEYS.stats]);

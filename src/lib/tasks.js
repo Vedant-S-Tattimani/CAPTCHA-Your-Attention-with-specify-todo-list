@@ -38,6 +38,14 @@
     return { ok: true, tasks: [...tasks, task] };
   }
 
+  /** Edits title, tag, priority and deadline with the same validation as adding. */
+  function updateTask(tasks, id, input) {
+    if (!tasks.some((t) => t.id === id)) return { ok: false, error: "That task no longer exists.", tasks };
+    const result = validateTaskInput(input);
+    if (!result.ok) return { ...result, tasks };
+    return { ok: true, tasks: tasks.map((t) => (t.id === id ? { ...t, ...result.task } : t)) };
+  }
+
   function toggleTask(tasks, id) {
     return tasks.map((t) => (t.id === id ? { ...t, done: !t.done } : t));
   }
@@ -50,16 +58,35 @@
     return tasks.filter((t) => !t.done);
   }
 
-  /** Open tasks first, then by priority, then by nearest deadline, then oldest. */
-  function sortTasks(tasks) {
+  const NO_DEADLINE = "9999-12-31";
+  const byPriority = (a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority];
+  const byDeadline = (a, b) => {
+    const da = a.deadline || NO_DEADLINE;
+    const db = b.deadline || NO_DEADLINE;
+    return da === db ? 0 : da < db ? -1 : 1;
+  };
+  const byOldest = (a, b) => a.createdAt - b.createdAt;
+  const byTitle = (a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: "base", numeric: true });
+
+  /** Sort orders offered in the Tasks tab. Open tasks always come before finished ones. */
+  const SORT_MODES = Object.freeze({
+    smart: { label: "Smart", compare: [byPriority, byDeadline, byOldest] },
+    deadline: { label: "Deadline", compare: [byDeadline, byPriority, byOldest] },
+    priority: { label: "Priority", compare: [byPriority, byOldest] },
+    newest: { label: "Newest", compare: [(a, b) => b.createdAt - a.createdAt] },
+    az: { label: "A–Z", compare: [byTitle, byOldest] },
+  });
+
+  /** Sorts by the chosen mode (default "smart": priority, then nearest deadline, then oldest). */
+  function sortTasks(tasks, mode = "smart") {
+    const compare = (SORT_MODES[mode] || SORT_MODES.smart).compare;
     return [...tasks].sort((a, b) => {
       if (a.done !== b.done) return a.done ? 1 : -1;
-      const p = PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority];
-      if (p !== 0) return p;
-      const da = a.deadline || "9999-12-31";
-      const db = b.deadline || "9999-12-31";
-      if (da !== db) return da < db ? -1 : 1;
-      return a.createdAt - b.createdAt;
+      for (const fn of compare) {
+        const result = fn(a, b);
+        if (result !== 0) return result;
+      }
+      return 0;
     });
   }
 
@@ -87,8 +114,10 @@
     PRIORITIES,
     TAGS,
     MAX_TITLE_LENGTH,
+    SORT_MODES,
     validateTaskInput,
     addTask,
+    updateTask,
     toggleTask,
     removeTask,
     clearDone,

@@ -17,12 +17,17 @@
     daily: "daily",
     totals: "totals",
     focusTaskId: "focusTaskId",
+    todos: "todos",
   });
 
   const STATUS_FRESH_MS = 2 * 60 * 1000;
 
   /** Every puzzle type, in display order. lib/puzzles.js has a generator for each. */
   const PUZZLE_KINDS = Object.freeze(["math", "sequence", "scramble", "memory", "odd", "phrase"]);
+
+  /** Task list sort orders (keys of FocusTasks.SORT_MODES) and layouts. */
+  const TASK_SORTS = Object.freeze(["smart", "deadline", "priority", "newest", "az"]);
+  const TASK_VIEWS = Object.freeze(["list", "grid"]);
 
   const DEFAULTS = Object.freeze({
     workMinutes: 25,
@@ -35,7 +40,11 @@
     dailyGoal: 4, // focus sessions per day
     puzzleKinds: PUZZLE_KINDS, // which puzzle types the guard may show
     platforms: Object.freeze(["youtube"]), // sites the guard runs on (others need Chrome access)
+    taskSort: "smart",
+    taskView: "list",
   });
+
+  const oneOf = (value, allowed, fallback) => (allowed.includes(value) ? value : fallback);
 
   /** Known, de-duplicated puzzle kinds in display order; never empty. */
   function sanitizeKinds(value) {
@@ -69,6 +78,8 @@
       dailyGoal: clampInt(s.dailyGoal, 1, 16, DEFAULTS.dailyGoal),
       puzzleKinds: sanitizeKinds(s.puzzleKinds),
       platforms: platformsApi.sanitizePlatforms(s.platforms),
+      taskSort: oneOf(s.taskSort, TASK_SORTS, DEFAULTS.taskSort),
+      taskView: oneOf(s.taskView, TASK_VIEWS, DEFAULTS.taskView),
     };
   }
 
@@ -141,6 +152,8 @@
     DEFAULTS,
     EMPTY_STATS,
     PUZZLE_KINDS,
+    TASK_SORTS,
+    TASK_VIEWS,
     sanitizeKinds,
     sanitizeSettings,
     sanitizeStats,

@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../fonts/fonts.css" />
     <link rel="stylesheet" href="popup.css" />
     <link rel="stylesheet" href="panels.css" />
+    <link rel="stylesheet" href="tasks-view.css" />
     <link rel="stylesheet" href="insights.css" />
     <link rel="stylesheet" href="puzzle-demo.css" />
   </head>
@@ -102,6 +103,15 @@
 
       <!-- Tasks (from Specify) -->
       <section id="panel-tasks" role="tabpanel" aria-labelledby="tab-tasks" hidden>
+        <!-- Pomodoro timer strip (same timer as the Focus tab) -->
+        <div class="task-timer" id="task-timer" data-mode="work">
+          <span class="tt-mode" id="tt-mode">Work</span>
+          <span class="tt-clock" id="tt-clock" role="timer">25:00</span>
+          <span class="tt-task" id="tt-task"></span>
+          <button type="button" class="primary tt-btn" id="tt-toggle">Start</button>
+        </div>
+
+        <h2>Tasks <span class="task-count" id="task-count"></span></h2>
         <form id="task-form" class="task-form" novalidate>
           <input id="task-title" type="text" maxlength="120" placeholder="What needs doing?" aria-label="Task title" required />
           <div class="task-meta">
@@ -117,12 +127,30 @@
           <p class="error" id="task-error" role="alert"></p>
         </form>
         <div class="task-tools">
-          <input id="task-search" type="search" placeholder="Search" aria-label="Search tasks" />
+          <input id="task-search" type="search" placeholder="Search tasks" aria-label="Search tasks" />
           <select id="task-filter" aria-label="Filter by tag"></select>
+        </div>
+        <div class="task-tools task-tools-2">
+          <select id="task-sort" aria-label="Sort tasks"></select>
+          <div class="view-toggle" role="group" aria-label="Layout">
+            <button type="button" id="view-list" aria-pressed="true" title="List view">☰ List</button>
+            <button type="button" id="view-grid" aria-pressed="false" title="Grid view">▦ Grid</button>
+          </div>
         </div>
         <ul id="task-list" class="task-list"></ul>
         <p class="empty" id="task-empty">No tasks yet. Add one above.</p>
         <button id="btn-clear-done" class="link">Clear finished tasks</button>
+
+        <!-- Simple todos: just text, no tag/priority/deadline -->
+        <h2>Quick todos</h2>
+        <form id="todo-form" class="todo-form" novalidate>
+          <input id="todo-text" type="text" maxlength="120" placeholder="Add a quick todo…" aria-label="Quick todo" />
+          <button type="submit" class="primary">Add</button>
+        </form>
+        <p class="error" id="todo-error" role="alert"></p>
+        <ul id="todo-list" class="todo-list"></ul>
+        <p class="empty empty-small" id="todo-empty">Nothing here. Jot down small things you don't want to forget.</p>
+        <button id="btn-clear-todos" class="link">Clear ticked todos</button>
       </section>
 
       <!-- Streaks, level, garden and weekly charts (popup/insights.js) -->
@@ -192,11 +220,13 @@
     <script src="../content/puzzle-view.js"></script>
     <script src="../lib/pomodoro.js"></script>
     <script src="../lib/tasks.js"></script>
+    <script src="../lib/todos.js"></script>
     <script src="../lib/progress.js"></script>
     <script src="insights.js"></script>
     <script src="celebrate.js"></script>
     <script src="puzzle-picker.js"></script>
     <script src="platform-picker.js"></script>
+    <script src="tasks-view.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

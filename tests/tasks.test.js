@@ -55,6 +55,49 @@ test("sortTasks orders open tasks by priority then deadline", () => {
   assert.deepEqual(T.sortTasks(withDone).map((t) => t.title), ["high-late", "med", "low", "high-soon"]);
 });
 
+test("updateTask edits fields with validation and leaves other tasks alone", () => {
+  const tasks = build([{ title: "old", tag: "work" }, { title: "other" }]);
+  const res = T.updateTask(tasks, tasks[0].id, { title: " new title ", tag: "study", priority: "high", deadline: "2026-12-01" });
+  assert.equal(res.ok, true);
+  assert.deepEqual(
+    { title: res.tasks[0].title, tag: res.tasks[0].tag, priority: res.tasks[0].priority, deadline: res.tasks[0].deadline },
+    { title: "new title", tag: "study", priority: "high", deadline: "2026-12-01" }
+  );
+  assert.equal(res.tasks[0].id, tasks[0].id, "keeps id");
+  assert.equal(res.tasks[0].createdAt, tasks[0].createdAt, "keeps creation time");
+  assert.equal(res.tasks[1], tasks[1]);
+  assert.equal(tasks[0].title, "old", "not mutated");
+  const bad = T.updateTask(tasks, tasks[0].id, { title: "" });
+  assert.equal(bad.ok, false);
+  assert.equal(bad.tasks, tasks);
+  assert.equal(T.updateTask(tasks, "missing", { title: "x" }).ok, false);
+});
+
+test("sortTasks supports every sort mode, always open before done", () => {
+  const tasks = build([
+    { title: "banana", priority: "low", deadline: "2026-12-10" },
+    { title: "Apple", priority: "high" },
+    { title: "cherry", priority: "medium", deadline: "2026-12-01" },
+    { title: "date", priority: "high", deadline: "2026-12-20" },
+  ]);
+  const titles = (mode) => T.sortTasks(tasks, mode).map((t) => t.title);
+  assert.deepEqual(titles("smart"), ["date", "Apple", "cherry", "banana"]);
+  assert.deepEqual(titles("deadline"), ["cherry", "banana", "date", "Apple"]);
+  assert.deepEqual(titles("priority"), ["Apple", "date", "cherry", "banana"]);
+  assert.deepEqual(titles("newest"), ["date", "cherry", "Apple", "banana"]);
+  assert.deepEqual(titles("az"), ["Apple", "banana", "cherry", "date"]);
+  assert.deepEqual(titles("bogus"), titles("smart"));
+  const withDone = T.toggleTask(tasks, tasks[1].id);
+  assert.equal(T.sortTasks(withDone, "az").at(-1).title, "Apple", "done goes last in every mode");
+});
+
+test("every settings sort option has a sort mode", () => {
+  const S = require("../src/lib/settings.js");
+  assert.deepEqual([...S.TASK_SORTS].sort(), Object.keys(T.SORT_MODES).sort());
+  assert.equal(S.sanitizeSettings({ taskSort: "nope", taskView: "cards" }).taskSort, "smart");
+  assert.equal(S.sanitizeSettings({ taskView: "grid" }).taskView, "grid");
+});
+
 test("filterTasks matches tag and case-insensitive search", () => {
   const tasks = build([
     { title: "Math homework", tag: "study" },
