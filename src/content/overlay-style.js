@@ -30,9 +30,28 @@ globalThis.FocusOverlayCss = `
   text-align: center;
 }
 
+.backdrop,
+.card {
+  --display: "FocusGuard Display", "Segoe UI", system-ui, sans-serif;
+  --hand: "FocusGuard Hand", "Segoe Print", "Comic Sans MS", cursive;
+}
+
+.scribble {
+  display: inline-block;
+  margin: 0 0 2px;
+  color: #d9480f;
+  font: 20px/1 var(--hand);
+  transform: rotate(-3deg);
+  border-bottom: 2px solid #d9480f;
+  border-radius: 0 0 40% 60% / 0 0 6px 4px;
+  padding: 0 4px 2px;
+}
+
 h2 {
-  margin: 0 0 4px;
-  font-size: 20px;
+  margin: 4px 0 4px;
+  font: 800 22px/1.1 var(--display);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .sub {
@@ -78,7 +97,7 @@ h2 {
 
 .question {
   margin-bottom: 12px;
-  font: 600 26px/1.2 ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font: 800 30px/1.2 var(--display);
   letter-spacing: 1px;
   user-select: none;
 }
@@ -112,18 +131,24 @@ input:focus {
 
 button {
   flex: 1;
-  padding: 10px 12px;
-  border: 0;
-  border-radius: 10px;
-  font: inherit;
-  font-size: 14px;
+  padding: 9px 12px;
+  border: 2px solid #1f2328;
+  border-radius: 12px;
+  font: 700 15px var(--display);
+  letter-spacing: 0.5px;
   cursor: pointer;
+  box-shadow: 0 3px 0 #1f2328;
+  transition: transform 80ms, box-shadow 80ms, background-color 150ms;
+}
+
+button:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 #1f2328;
 }
 
 .primary {
   background: #d9480f;
   color: #fff;
-  font-weight: 600;
 }
 
 .primary:hover {
@@ -131,20 +156,27 @@ button {
 }
 
 .ghost {
-  background: #f1f3f5;
+  background: #fff;
   color: #1f2328;
 }
 
 .ghost:hover {
-  background: #e3e6e9;
+  background: #f1f3f5;
 }
 
 form > .ghost {
   width: 100%;
-  margin-top: 8px;
+  margin-top: 10px;
+  border: 0;
+  box-shadow: none;
   background: transparent;
-  text-decoration: underline;
   color: #59636e;
+  font: 18px var(--hand);
+  text-decoration: underline;
+}
+
+form > .ghost:active {
+  transform: none;
 }
 
 button:focus-visible {

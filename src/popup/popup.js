@@ -129,6 +129,14 @@
     $("focus-on-title").textContent = task ? task.title : "";
   }
 
+  /** The handwritten note above the title reacts to what you're doing. */
+  function taglineFor(state) {
+    if (state.running && state.mode === "work") return "in the zone!";
+    if (state.running) return "take a breather~";
+    if (G.getDay(daily, todayKey()).sessions >= settings.dailyGoal) return "goal smashed!";
+    return "let's focus!";
+  }
+
   function renderTimer() {
     const now = Date.now();
     const left = P.remaining(pomodoro, now);
@@ -143,6 +151,7 @@
     $("session-count").textContent = `${pomodoro.completedWork} session${pomodoro.completedWork === 1 ? "" : "s"} done`;
     $("btn-toggle").textContent = pomodoro.running ? "Pause" : "Start";
     $("focus-hint").textContent = P.isFocusing(pomodoro) ? "Shorts will ask for a puzzle on every video." : "";
+    $("tagline").textContent = taglineFor(pomodoro);
 
     if (lastCompletedWork !== null && pomodoro.completedWork > lastCompletedWork) celebrate($("dial"));
     lastCompletedWork = pomodoro.completedWork;

@@ -9,8 +9,15 @@
   --card: #ffffff;
   --radius-sm: 8px;
   --radius-lg: 14px;
+  /*
+   * Type system: chunky rounded pixel display font for headings, numbers and buttons;
+   * a handwritten accent for small friendly notes; the system font for longer, smaller text.
+   */
+  --font-display: "Bitcount Prop Single", "Segoe UI", system-ui, sans-serif;
+  --font-hand: "Shadows Into Light", "Segoe Print", "Comic Sans MS", cursive;
   --font-ui: "Segoe UI", system-ui, -apple-system, sans-serif;
-  --font-num: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --font-num: var(--font-display);
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
 
   /* Sticky-note tag colours, as in Specify */
   --tag-work: #ffd8a8;
@@ -71,31 +78,45 @@ body {
 
 h1 {
   margin: 0 0 10px;
-  font-size: 17px;
-  letter-spacing: -0.2px;
+  font: 800 22px/1 var(--font-display);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .version {
   color: var(--muted);
-  font: 500 11px var(--font-num);
+  font: 600 10px var(--font-display);
+  letter-spacing: 0.5px;
+  text-transform: none;
 }
 
-h1::before {
-  content: "";
+/* Handwritten note above the title, like "let's play!" with a pen swoosh under it. */
+.tagline {
+  position: relative;
   display: inline-block;
-  width: 10px;
-  height: 10px;
-  margin-right: 8px;
-  border-radius: 50%;
-  background: var(--work);
+  margin: 0 0 2px 2px;
+  color: var(--work);
+  font: 17px/1 var(--font-hand);
+  transform: rotate(-3deg);
+}
+
+.tagline::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -4px;
+  bottom: -5px;
+  height: 6px;
+  background: no-repeat center / 100% 100%
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M2 6 Q30 1 60 4 T98 3' fill='none' stroke='%23d9480f' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M8 7.5 Q40 4 92 5.5' fill='none' stroke='%23d9480f' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
 h2 {
-  margin: 20px 0 8px;
-  font-size: 13px;
+  margin: 22px 0 8px;
+  font: 700 14px var(--font-display);
   text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: var(--muted);
+  letter-spacing: 1px;
+  color: var(--ink);
 }
 
 .tabs {
@@ -110,8 +131,14 @@ h2 {
   border-bottom: 3px solid transparent;
   background: none;
   color: var(--muted);
-  font: 600 13px var(--font-ui);
+  font: 700 13px var(--font-display);
+  letter-spacing: 0.5px;
   cursor: pointer;
+  transition: color 150ms;
+}
+
+.tabs button:hover {
+  color: var(--ink);
 }
 
 .tabs button[aria-selected="true"] {
@@ -135,34 +162,41 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
+/* Chunky "pressable" buttons: a solid ink shadow that the button sinks into when pressed. */
+.primary,
+.ghost {
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  font: 700 14px var(--font-display);
+  letter-spacing: 0.5px;
+  box-shadow: 0 3px 0 var(--ink);
+  transition: background-color 150ms, transform 80ms, box-shadow 80ms;
+}
+
 .primary {
-  padding: 9px 16px;
-  border: 0;
-  border-radius: var(--radius-sm);
+  padding: 8px 16px;
   background: var(--work);
   color: #fff;
-  font-weight: 600;
-  transition: background-color 150ms, transform 100ms;
 }
 
 .primary:hover {
   background: var(--work-dark);
 }
 
-.primary:active {
-  transform: translateY(1px);
-}
-
 .ghost {
-  padding: 9px 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
+  padding: 8px 14px;
   background: var(--card);
   color: var(--ink);
 }
 
 .ghost:hover {
-  border-color: var(--muted);
+  background: var(--paper);
+}
+
+.primary:active,
+.ghost:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--ink);
 }
 
 .link {
@@ -231,20 +265,20 @@ select {
 
 .mode {
   color: var(--accent);
-  font-weight: 700;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
+  font: 22px/1 var(--font-hand);
 }
 
 .clock {
-  font: 600 44px/1.1 var(--font-num);
-  letter-spacing: -1px;
+  margin: 2px 0;
+  font: 800 46px/1 var(--font-display);
+  letter-spacing: 1px;
+  font-variant-numeric: tabular-nums;
 }
 
 .count {
   color: var(--muted);
-  font-size: 12px;
+  font: 600 11px var(--font-display);
+  letter-spacing: 0.4px;
 }
 
 .controls {
@@ -370,10 +404,13 @@ select {
 }
 
 .pill {
-  padding: 0 6px;
+  padding: 1px 6px 0;
   border-radius: 99px;
   background: rgba(0, 0, 0, 0.08);
   color: var(--ink);
+  font: 700 10px var(--font-display);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
 }
 
 .pill.high {
@@ -405,6 +442,7 @@ select {
   margin: 16px 0;
   text-align: center;
   color: var(--muted);
+  font: 19px var(--font-hand);
 }
 
 /* ---------- Guard ---------- */
@@ -469,8 +507,8 @@ select {
 }
 
 .stats dd {
-  margin: 2px 0 0;
-  font: 600 20px var(--font-num);
+  margin: 4px 0 0;
+  font: 800 22px var(--font-display);
 }
 
 /* ---------- Header chips ---------- */
@@ -492,16 +530,15 @@ select {
 }
 
 .chip {
-  padding: 3px 9px;
-  border: 1px solid var(--line);
+  padding: 4px 9px 3px;
+  border: 2px solid var(--ink);
   border-radius: 99px;
   background: var(--card);
-  font: 600 12px var(--font-ui);
+  font: 700 12px var(--font-display);
   white-space: nowrap;
 }
 
 .chip-level {
-  border-color: transparent;
   background: var(--ink);
   color: var(--paper);
 }
@@ -534,10 +571,11 @@ select {
 
 .focus-on-label {
   color: var(--muted);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
+  font: 16px/1.1 var(--font-hand);
+}
+
+.focus-on strong {
+  font-size: 15px;
 }
 
 .goal {
@@ -550,12 +588,15 @@ select {
 
 .goal-head {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  font-weight: 600;
+  font: 700 14px var(--font-display);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .goal-count {
-  font-family: var(--font-num);
+  font: 800 18px var(--font-display);
 }
 
 .goal-dots {
@@ -592,7 +633,7 @@ select {
 .goal-msg {
   margin: 0;
   color: var(--muted);
-  font-size: 12px;
+  font: 16px/1.2 var(--font-hand);
 }
 
 .timer-settings {
@@ -603,7 +644,8 @@ select {
 
 .timer-settings summary {
   cursor: pointer;
-  font-weight: 600;
+  font: 700 13px var(--font-display);
+  letter-spacing: 0.4px;
 }
 
 .timer-settings .minutes {
@@ -622,7 +664,7 @@ kbd {
   border-bottom-width: 2px;
   border-radius: 4px;
   background: var(--card);
-  font: 11px var(--font-num);
+  font: 11px var(--font-mono);
 }
 
 .hint-left {
@@ -693,12 +735,13 @@ kbd {
   height: 44px;
   border: 2px solid rgba(255, 255, 255, 0.7);
   border-radius: 50%;
-  font: 700 20px var(--font-num);
+  font: 800 22px var(--font-display);
 }
 
 .level-title {
-  font-size: 16px;
-  font-weight: 700;
+  font: 800 18px/1 var(--font-display);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .xp-bar {
@@ -733,12 +776,12 @@ kbd {
 }
 
 .streak-big strong {
-  font: 700 20px var(--font-num);
+  font: 800 22px var(--font-display);
 }
 
 .streak-big small {
-  font-size: 10px;
-  opacity: 0.9;
+  font: 14px/1 var(--font-hand);
+  opacity: 0.95;
 }
 
 .garden {
@@ -805,7 +848,7 @@ kbd {
 
 .plot-day {
   color: var(--muted);
-  font-size: 10px;
+  font: 600 10px var(--font-display);
 }
 
 .plot.today .plot-day {
@@ -830,7 +873,8 @@ kbd {
 }
 
 .chart-title {
-  font-weight: 600;
+  font: 700 13px var(--font-display);
+  letter-spacing: 0.4px;
 }
 
 .chart-total {

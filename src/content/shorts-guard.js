@@ -114,14 +114,37 @@
       "text-align": "center",
       "box-shadow": "0 20px 50px rgba(0, 0, 0, 0.35)",
     },
-    question: { "font-size": "26px", "font-weight": "600", margin: "0 0 12px" },
+    question: { "font-size": "28px", "font-weight": "800", margin: "0 0 12px" },
     input: { width: "100%", "box-sizing": "border-box", padding: "10px", "font-size": "18px", "text-align": "center" },
-    primary: { background: "#d9480f", color: "#fff", border: "0", padding: "10px 12px", "border-radius": "10px", cursor: "pointer" },
+    primary: { background: "#d9480f", color: "#fff", border: "2px solid #1f2328", "border-radius": "12px", cursor: "pointer" },
   };
 
   function pin(node, styles) {
     Object.entries(styles).forEach(([prop, value]) => node.style.setProperty(prop, value, "important"));
     return node;
+  }
+
+  /*
+   * @font-face rules don't work inside a shadow root, so the overlay's fonts are added to the
+   * page's font set once, under names that can't clash with YouTube's. If loading fails the
+   * overlay simply uses the fallback fonts listed in overlay-style.js.
+   */
+  let fontsRequested = false;
+  function loadOverlayFonts() {
+    if (fontsRequested || typeof FontFace === "undefined") return;
+    fontsRequested = true;
+    const faces = [
+      new FontFace("FocusGuard Display", `url("${chrome.runtime.getURL("fonts/bitcount-prop-single.woff2")}")`, {
+        weight: "400 900",
+      }),
+      new FontFace("FocusGuard Hand", `url("${chrome.runtime.getURL("fonts/shadows-into-light.woff2")}")`),
+    ];
+    faces.forEach((face) =>
+      face
+        .load()
+        .then((loaded) => document.fonts.add(loaded))
+        .catch((error) => console.warn("[Focus Guard] overlay font not loaded, using fallback", error))
+    );
   }
 
   function closePuzzle() {
@@ -133,6 +156,7 @@
     if (puzzleOpen) return;
     puzzleOpen = true;
     pauseVideos();
+    loadOverlayFonts();
 
     const host = pin(el("div", { id: HOST_ID }), CRITICAL_STYLES.host);
     const shadow = host.attachShadow({ mode: "open" });
@@ -160,6 +184,7 @@
 
     const form = el("form", {}, [kindLabel, question, input, feedback, el("div", { className: "row" }, [submit, another]), leave]);
     const card = el("div", { className: "card", role: "dialog", ariaModal: "true" }, [
+      el("p", { className: "scribble", textContent: focusing ? "hey, focus time!" : "hey, wait!" }),
       el("h2", { textContent: focusing ? "You're in a focus session" : "Time for a brain check" }),
       el("p", {
         className: "sub",
