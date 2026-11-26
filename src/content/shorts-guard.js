@@ -12,13 +12,12 @@
   const platform = platformForHost(location.hostname);
   if (!platform) return; // not a supported site
 
-  const { KEYS, sanitizeSettings, addStats, shouldShowPuzzle } = globalThis.FocusSettings;
+  const { KEYS, sanitizeSettings, shouldShowPuzzle } = globalThis.FocusSettings;
   const { difficultyFor } = globalThis.FocusCaptcha;
   const { pickChallenge } = globalThis.FocusPuzzles;
   const { create: createPuzzleView } = globalThis.FocusPuzzleView;
   const { isFocusing } = globalThis.FocusPomodoro;
   const { focusTask } = globalThis.FocusTasks;
-  const { dayKey, recordActivity } = globalThis.FocusProgress;
 
   const POLL_MS = 500;
   const FLUSH_SECONDS = 10;
@@ -80,15 +79,14 @@
 
   const guardedHere = () => settings.guardEnabled && settings.platforms.includes(platform.id);
 
-  /** Updates all-time stats and today's log (shorts and puzzles feed the Insights tab). */
+  /**
+   * Records activity for Insights (videos, time, puzzles). The background worker is the only
+   * writer, so counts from several tabs at once can't overwrite each other.
+   */
   async function bumpStats(delta) {
     try {
-      const data = await chrome.storage.local.get([KEYS.stats, KEYS.daily]);
-      const daily = recordActivity(data[KEYS.daily], dayKey(new Date()), {
-        shorts: delta.shortsWatched || 0,
-        puzzles: delta.puzzlesSolved || 0,
-      });
-      await chrome.storage.local.set({ [KEYS.stats]: addStats(data[KEYS.stats], delta), [KEYS.daily]: daily });
+      const response = await chrome.runtime.sendMessage({ type: "activity", delta: { ...delta, platform: platform.id } });
+      if (!response?.ok) console.warn("[Focus Guard] activity not saved", response?.error);
     } catch (error) {
       // Happens when the extension is reloaded while the page is open; nothing to save to.
       console.warn("[Focus Guard] could not save stats", error);
@@ -267,7 +265,7 @@
     currentShortId = id;
     shortsThisSession += 1;
     shortsSinceLastPuzzle += 1;
-    bumpStats({ shortsWatched: 1, platform: platform.id });
+    bumpStats({ shortsWatched: 1 });
     reportStatus();
     if (shouldShowPuzzle(shortsSinceLastPuzzle, settings, isFocusing(pomodoro))) openPuzzle();
   }

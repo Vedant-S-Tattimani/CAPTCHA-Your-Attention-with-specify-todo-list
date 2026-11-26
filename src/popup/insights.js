@@ -185,8 +185,8 @@
     return section;
   }
 
-  function levelCard(log, streakDays, days) {
-    const info = G.levelFor(G.xpFor(G.totals(log)));
+  function levelCard(totals, streakDays, days) {
+    const info = G.levelFor(G.xpFor(totals));
     return el("section", { className: "level-card" }, [
       el("div", { className: "level-badge" }, [
         el("span", { textContent: "LV" }),
@@ -204,14 +204,15 @@
   /**
    * Renders the whole Insights tab into `container`.
    * @param {HTMLElement} container
-   * @param {{ log: object, goal: number, today: string }} data
+   * @param {{ log: object, totals?: object, goal: number, today: string }} data
+   *   log: daily activity (last 60 days); totals: lifetime counters for XP (falls back to log)
    */
-  function render(container, { log, goal, today }) {
+  function render(container, { log, totals, goal, today }) {
     const days = G.lastDays(log, today, DAYS);
     const streakDays = G.streak(log, today);
     const todayDay = days[days.length - 1];
     container.replaceChildren(
-      levelCard(log, streakDays, days),
+      levelCard(totals || G.totals(log), streakDays, days),
       el("h2", { textContent: "Focus garden" }),
       el("p", {
         className: "hint-left",

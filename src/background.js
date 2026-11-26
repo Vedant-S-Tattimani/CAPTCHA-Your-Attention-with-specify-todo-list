@@ -1,10 +1,37 @@
 /* Background service worker: owns the Pomodoro timer so it keeps running with the popup closed. */
-importScripts("lib/platforms.js", "lib/settings.js", "lib/pomodoro.js", "lib/progress.js", "platform-sync.js");
+importScripts(
+  "lib/platforms.js",
+  "lib/settings.js",
+  "lib/pomodoro.js",
+  "lib/progress.js",
+  "lib/activity.js",
+  "platform-sync.js"
+);
 
 const { KEYS, sanitizeSettings } = self.FocusSettings;
 const P = self.FocusPomodoro;
 const G = self.FocusProgress;
+const { applyActivity, createQueue } = self.FocusActivity;
 const ALARM = "pomodoro-phase-end";
+
+/*
+ * The single writer for Insights data (stats, daily log, lifetime totals). Tabs and the popup
+ * send events here; the queue applies them one at a time so none overwrite another.
+ */
+const enqueueActivity = createQueue();
+
+function recordActivity(delta) {
+  return enqueueActivity(async () => {
+    const data = await chrome.storage.local.get([KEYS.stats, KEYS.daily, KEYS.totals]);
+    const next = applyActivity(
+      { stats: data[KEYS.stats], daily: data[KEYS.daily], totals: data[KEYS.totals] },
+      delta,
+      G.dayKey(new Date())
+    );
+    await chrome.storage.local.set({ [KEYS.stats]: next.stats, [KEYS.daily]: next.daily, [KEYS.totals]: next.totals });
+    return next;
+  });
+}
 
 const BREAK_TIPS = [
   "Stand up and stretch your arms and back.",
@@ -39,11 +66,8 @@ async function updateBadge(state) {
 
 /** Adds a finished work session to today's log. Returns today's session count. */
 async function recordFocusSession(settings) {
-  const key = G.dayKey(new Date());
-  const data = await chrome.storage.local.get(KEYS.daily);
-  const log = G.recordActivity(data[KEYS.daily], key, { sessions: 1, focusMinutes: settings.workMinutes });
-  await chrome.storage.local.set({ [KEYS.daily]: log });
-  return log[key].sessions;
+  const next = await recordActivity({ sessions: 1, focusMinutes: settings.workMinutes });
+  return G.getDay(next.daily, G.dayKey(new Date())).sessions;
 }
 
 function phaseMessage(nextState, settings, sessionsToday) {
@@ -96,10 +120,17 @@ async function handleTimerAction(action) {
   return save(handler(state, settings));
 }
 
+const MESSAGE_HANDLERS = {
+  timer: (message) => handleTimerAction(message.action).then((state) => ({ ok: true, state })),
+  // From guard tabs and the popup. Focus sessions are only counted by the timer itself.
+  activity: (message) => recordActivity({ ...message.delta, sessions: 0, focusMinutes: 0 }).then(() => ({ ok: true })),
+};
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (sender.id !== chrome.runtime.id || message?.type !== "timer") return false;
-  handleTimerAction(message.action)
-    .then((state) => sendResponse({ ok: true, state }))
+  const handler = MESSAGE_HANDLERS[message?.type];
+  if (sender.id !== chrome.runtime.id || !handler) return false;
+  handler(message)
+    .then(sendResponse)
     .catch((error) => sendResponse({ ok: false, error: error.message }));
   return true; // async response
 });
@@ -122,11 +153,15 @@ chrome.storage.onChanged.addListener((changes, area) => {
     .catch((e) => console.error("[Focus Guard] settings sync failed", e));
 });
 
-/* After a browser restart, a phase that ended while Chrome was closed is moved on and paused. */
+/*
+ * After a browser restart, a phase that ended while Chrome was closed is moved on and paused.
+ * A work session that ran to the end still counts towards Insights.
+ */
 async function recover() {
   const { settings, state } = await load();
   if (state.running && state.endsAt <= Date.now()) {
     await save(P.pause(P.advance(state, settings, Date.now()), Date.now()));
+    if (state.mode === "work") await recordFocusSession(settings);
   } else {
     await save(state);
   }

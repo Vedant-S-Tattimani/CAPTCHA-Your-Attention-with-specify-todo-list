@@ -15,6 +15,7 @@
     stats: "stats",
     guardStatus: "guardStatus",
     daily: "daily",
+    totals: "totals",
     focusTaskId: "focusTaskId",
   });
 

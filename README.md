@@ -15,6 +15,14 @@ The two parts work together:
 
 Everything is stored on your computer (`chrome.storage.local`). There's no account, no server, and nothing is sent anywhere.
 
+### Data and privacy
+
+- **No API keys, no database, no server, no sign-up.** Nothing needs configuring.
+- **All data lives in Chrome's local extension storage** on your computer: settings, tasks, timer, stats, the 60-day activity log and lifetime XP totals. Removing the extension deletes it.
+- **No network requests.** The only `fetch` reads the extension's own `manifest.json` (for the "Update ready" banner). Fonts and icons are bundled.
+- **Site access is opt-in.** Only YouTube is enabled at install. Chrome asks before the guard runs on Instagram, TikTok, Facebook or Snapchat, and switching a site off removes the access.
+- **Insights data has one writer.** Guard tabs and the popup send events to the background worker, which applies them one at a time (`lib/activity.js`), so nothing is lost when several tabs report at once. XP comes from lifetime totals that are never trimmed, so your level never goes down.
+
 ## Install (developer mode)
 
 1. Open `chrome://extensions` in Chrome.
@@ -90,6 +98,7 @@ src/
   platform-sync.js       Service worker helper: adds/removes the guard per platform and permission
   lib/                   Pure logic, shared by every part and covered by tests
     platforms.js         Supported sites, their feed addresses and video detection
+    activity.js          Applies activity events to stats, daily log and lifetime totals
     captcha.js           Math and number-sequence generators
     puzzles.js           All six puzzle types, one shape, answer checking
     pomodoro.js          Timer state

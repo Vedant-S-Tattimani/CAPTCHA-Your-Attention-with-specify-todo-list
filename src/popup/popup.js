@@ -17,6 +17,7 @@
   let pomodoro = P.createState(settings);
   let tasks = [];
   let daily = {};
+  let totals = null; // lifetime counters for XP; null until the first event after upgrading
   let focusTaskId = null;
   let guardStatus;
   let filter = { query: "", tag: "all" };
@@ -52,12 +53,14 @@
     await chrome.storage.local.set({ [KEYS.focusTaskId]: id });
   }
 
+  /** Sends activity to the background worker (the single writer); Insights updates via storage events. */
   async function recordToday(delta) {
-    const data = await chrome.storage.local.get(KEYS.daily);
-    daily = G.recordActivity(data[KEYS.daily], todayKey(), delta);
-    await chrome.storage.local.set({ [KEYS.daily]: daily });
-    renderProgress();
+    const response = await chrome.runtime.sendMessage({ type: "activity", delta });
+    if (!response?.ok) throw new Error(response?.error || "Activity was not saved");
   }
+
+  /** Lifetime totals for XP; before the first new event, fall back to the daily log. */
+  const xpTotals = () => totals || G.totals(daily);
 
   async function timer(action) {
     const res = await chrome.runtime.sendMessage({ type: "timer", action });
@@ -105,7 +108,7 @@
     const done = G.getDay(daily, today).sessions;
     const goal = settings.dailyGoal;
     const streakDays = G.streak(daily, today);
-    const level = G.levelFor(G.xpFor(G.totals(daily)));
+    const level = G.levelFor(G.xpFor(xpTotals()));
 
     $("chip-streak").textContent = `🔥 ${streakDays}`;
     $("chip-streak").classList.toggle("cold", streakDays === 0);
@@ -122,7 +125,7 @@
       })
     );
     $("goal-msg").textContent = goalMessage(done, goal);
-    renderInsightsInto($("panel-insights"), { log: daily, goal, today });
+    renderInsightsInto($("panel-insights"), { log: daily, totals: xpTotals(), goal, today });
   }
 
   /* ---------- Focus tab ---------- */
@@ -380,8 +383,9 @@
       renderProgress();
     }
     if (changes[KEYS.stats]) renderStats(changes[KEYS.stats].newValue);
-    if (changes[KEYS.daily]) {
-      daily = changes[KEYS.daily].newValue || {};
+    if (changes[KEYS.daily] || changes[KEYS.totals]) {
+      if (changes[KEYS.daily]) daily = changes[KEYS.daily].newValue || {};
+      if (changes[KEYS.totals]) totals = changes[KEYS.totals].newValue || null;
       renderProgress();
     }
     if (changes[KEYS.guardStatus]) {
@@ -399,8 +403,9 @@
     setupTasks();
     setupGuard();
 
-    const keys = [KEYS.settings, KEYS.pomodoro, KEYS.tasks, KEYS.stats, KEYS.guardStatus, KEYS.daily, KEYS.focusTaskId];
+    const keys = [KEYS.settings, KEYS.pomodoro, KEYS.tasks, KEYS.stats, KEYS.guardStatus, KEYS.daily, KEYS.totals, KEYS.focusTaskId];
     const data = await chrome.storage.local.get(keys);
+    totals = data[KEYS.totals] || null;
     guardStatus = data[KEYS.guardStatus];
     settings = sanitizeSettings(data[KEYS.settings]);
     pomodoro = data[KEYS.pomodoro] || P.createState(settings);
