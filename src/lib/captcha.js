@@ -62,7 +62,6 @@
   }
 
   const SEQUENCE_TERMS = 4;
-  const SEQUENCE_SHARE = 0.35;
 
   /**
    * "What comes next?" puzzle. Easy levels add a constant; from level 3 it may multiply instead.
@@ -81,13 +80,6 @@
     return { kind: "sequence", text: `${terms.join(", ")}, ?`, answer, prompt: "What comes next?" };
   }
 
-  /** A math or sequence puzzle, chosen at random. Same shape for both kinds. */
-  function generateChallenge(difficulty, random = Math.random) {
-    if (random() < SEQUENCE_SHARE) return generateSequence(difficulty, random);
-    const { text, answer } = generatePuzzle(difficulty, random);
-    return { kind: "math", text: `${text} = ?`, answer, prompt: "Solve to keep watching" };
-  }
-
   /** Difficulty rises by one every `stepEvery` shorts watched this session. */
   function difficultyFor(shortsThisSession, stepEvery) {
     const step = Math.max(1, Math.floor(stepEvery) || 1);
@@ -100,7 +92,7 @@
     return Number(trimmed) === answer;
   }
 
-  const api = { generatePuzzle, generateSequence, generateChallenge, difficultyFor, isCorrect, evaluate, MAX_DIFFICULTY };
+  const api = { generatePuzzle, generateSequence, difficultyFor, isCorrect, evaluate, MAX_DIFFICULTY };
   root.FocusCaptcha = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

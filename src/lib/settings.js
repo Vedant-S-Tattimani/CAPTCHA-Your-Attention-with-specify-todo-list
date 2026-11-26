@@ -17,6 +17,9 @@
 
   const STATUS_FRESH_MS = 2 * 60 * 1000;
 
+  /** Every puzzle type, in display order. lib/puzzles.js has a generator for each. */
+  const PUZZLE_KINDS = Object.freeze(["math", "sequence", "scramble", "memory", "odd", "phrase"]);
+
   const DEFAULTS = Object.freeze({
     workMinutes: 25,
     breakMinutes: 5,
@@ -26,7 +29,15 @@
     strictDuringFocus: true, // puzzle on every short while a work session runs
     notify: true,
     dailyGoal: 4, // focus sessions per day
+    puzzleKinds: PUZZLE_KINDS, // which puzzle types the guard may show
   });
+
+  /** Known, de-duplicated puzzle kinds in display order; never empty. */
+  function sanitizeKinds(value) {
+    if (!Array.isArray(value)) return [...PUZZLE_KINDS];
+    const chosen = PUZZLE_KINDS.filter((kind) => value.includes(kind));
+    return chosen.length > 0 ? chosen : [...PUZZLE_KINDS];
+  }
 
   const EMPTY_STATS = Object.freeze({ shortsWatched: 0, secondsOnShorts: 0, puzzlesSolved: 0 });
 
@@ -51,6 +62,7 @@
       strictDuringFocus: bool(s.strictDuringFocus, DEFAULTS.strictDuringFocus),
       notify: bool(s.notify, DEFAULTS.notify),
       dailyGoal: clampInt(s.dailyGoal, 1, 16, DEFAULTS.dailyGoal),
+      puzzleKinds: sanitizeKinds(s.puzzleKinds),
     };
   }
 
@@ -104,6 +116,8 @@
     KEYS,
     DEFAULTS,
     EMPTY_STATS,
+    PUZZLE_KINDS,
+    sanitizeKinds,
     sanitizeSettings,
     sanitizeStats,
     addStats,

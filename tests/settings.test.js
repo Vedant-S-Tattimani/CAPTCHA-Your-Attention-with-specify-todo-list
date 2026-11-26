@@ -11,6 +11,13 @@ test("sanitizeSettings fills defaults and clamps ranges", () => {
   assert.equal(s.workMinutes, 180);
 });
 
+test("puzzleKinds keeps known kinds in display order and is never empty", () => {
+  assert.deepEqual(S.sanitizeSettings(null).puzzleKinds, [...S.PUZZLE_KINDS]);
+  assert.deepEqual(S.sanitizeKinds(["phrase", "math", "math", "nope"]), ["math", "phrase"]);
+  assert.deepEqual(S.sanitizeKinds([]), [...S.PUZZLE_KINDS]);
+  assert.deepEqual(S.sanitizeKinds("math"), [...S.PUZZLE_KINDS]);
+});
+
 test("dailyGoal defaults to 4 and is clamped", () => {
   assert.equal(S.sanitizeSettings(null).dailyGoal, 4);
   assert.equal(S.sanitizeSettings({ dailyGoal: 0 }).dailyGoal, 1);

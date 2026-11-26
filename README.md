@@ -47,12 +47,25 @@ By default the first puzzle appears on the **3rd** short (or on every short duri
 | 🔥 Streak | Days in a row with at least one finished focus session. Today doesn't break it until the day is over. |
 | 🌱 Focus Garden | One plant per day for the last week. It sprouts with your first session and blooms at your daily goal. |
 | ⭐ Levels | XP from finished sessions (10), finished tasks (5) and solved puzzles (2). Seven levels, from Seedling to Zen Guardian. |
-| 🧩 Puzzles | A mix of math and "what comes next?" number sequences. Both get harder the more Shorts you watch. |
+| 🧩 Puzzles | Six types, chosen in the Guard tab (see below). All get harder the more Shorts you watch. |
 | 🔔 Break tips | When a work session ends, the notification shows your progress towards today's goal and a break idea. |
 | ⌨️ Shortcut | <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> starts or pauses the timer from any page. Change it at `chrome://extensions/shortcuts`. |
 | 👋 Welcome page | Opens once on first install with a 3-step quick start. |
 
 The daily history keeps the last 60 days.
+
+### Puzzle types
+
+Turn each type on or off in the **Guard** tab (at least one stays on). Press **▶ Try** on any type to play a demo inside the popup. Demo solves don't count towards your stats.
+
+| Type | What you do | Gets harder by |
+|------|-------------|----------------|
+| ➗ Math | Solve `7 + 3 × 2` (normal operator precedence) | More operations |
+| 🔢 Next number | Continue `3, 7, 11, 15, ?` | Bigger steps, then multiplying |
+| 🔤 Word scramble | Unscramble `C S U O F` → FOCUS (any letter case) | Longer words |
+| 🧠 Memory | Digits show for 3 seconds, then you type them back | More digits (4 to 9) |
+| 🧩 Odd one out | Tap the emoji that doesn't belong | 5 choices instead of 4 |
+| ⌨️ Type it out | Type a short motivating phrase exactly (pasting is blocked) | Longer phrases |
 
 ## Project layout
 
@@ -61,13 +74,15 @@ src/
   manifest.json          Manifest V3
   background.js          Service worker: runs the timer with chrome.alarms, badge, notifications
   lib/                   Pure logic, shared by every part and covered by tests
-    captcha.js           Puzzle generator
+    captcha.js           Math and number-sequence generators
+    puzzles.js           All six puzzle types, one shape, answer checking
     pomodoro.js          Timer state
     tasks.js             Task list operations
     settings.js          Storage keys, settings validation, stats
     progress.js          Daily log, streaks, XP/levels, garden growth
   content/
     shorts-guard.js      Runs on YouTube, detects Shorts, shows the puzzle overlay
+    puzzle-view.js       Renders any puzzle type (shared by the overlay and the popup demo)
     overlay-style.js     Overlay styles, applied inside the overlay's shadow root
   popup/                 Toolbar popup UI
     insights.js          Level card, Focus Garden, weekly charts

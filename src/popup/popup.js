@@ -21,6 +21,7 @@
   let guardStatus;
   let filter = { query: "", tag: "all" };
   let lastCompletedWork = null;
+  let puzzlePicker = null;
 
   /* ---------- helpers ---------- */
   function el(tag, props = {}, children = []) {
@@ -304,6 +305,7 @@
     $("difficulty-step-out").textContent = String(settings.difficultyStep);
     $("strict-focus").checked = settings.strictDuringFocus;
     $("notify").checked = settings.notify;
+    puzzlePicker?.render();
     renderGuardStatus();
   }
 
@@ -316,6 +318,15 @@
     Object.entries(ranges).forEach(([id, key]) => {
       $(id).addEventListener("input", (e) => ($(`${id}-out`).textContent = e.target.value));
       $(id).addEventListener("change", (e) => saveSettings({ [key]: e.target.value }).catch(reportError));
+    });
+    puzzlePicker = globalThis.FocusPuzzlePicker.setup({
+      grid: $("kind-grid"),
+      error: $("kind-error"),
+      demo: $("demo"),
+      getKinds: () => settings.puzzleKinds,
+      saveKinds: (kinds) => saveSettings({ puzzleKinds: kinds }),
+      celebrate,
+      onError: reportError,
     });
     $("btn-reset-stats").addEventListener("click", () => {
       if (!confirm("Reset all Shorts stats to zero?")) return;

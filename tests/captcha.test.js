@@ -3,7 +3,6 @@ const assert = require("node:assert/strict");
 const {
   generatePuzzle,
   generateSequence,
-  generateChallenge,
   difficultyFor,
   isCorrect,
   evaluate,
@@ -39,16 +38,6 @@ test("easy sequences only add; geometric ones appear from level 3", () => {
   assert.deepEqual([...kinds].sort(), ["add", "multiply"]);
 });
 
-test("generateChallenge mixes math and sequence puzzles", () => {
-  const kinds = new Set();
-  for (let i = 0; i < 200; i++) {
-    const c = generateChallenge(2);
-    kinds.add(c.kind);
-    assert.equal(typeof c.prompt, "string");
-    assert.ok(c.text.endsWith("?"));
-  }
-  assert.deepEqual([...kinds].sort(), ["math", "sequence"]);
-});
 
 /** Deterministic RNG that cycles through the given values. */
 function sequence(values) {

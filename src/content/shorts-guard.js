@@ -1,5 +1,5 @@
 /*
- * Shorts guard: counts YouTube Shorts and interrupts with a math puzzle.
+ * Shorts guard: counts YouTube Shorts and interrupts with a puzzle (types chosen in the popup).
  * Based on CAPTCHA-Your-Attention (MIT, Yash Yadav).
  * Runs on all of youtube.com because YouTube is a single-page app: going from the
  * home page to Shorts doesn't reload the page.
@@ -8,7 +8,9 @@
   "use strict";
 
   const { KEYS, sanitizeSettings, addStats, shouldShowPuzzle } = globalThis.FocusSettings;
-  const { generateChallenge, difficultyFor, isCorrect } = globalThis.FocusCaptcha;
+  const { difficultyFor } = globalThis.FocusCaptcha;
+  const { pickChallenge } = globalThis.FocusPuzzles;
+  const { create: createPuzzleView } = globalThis.FocusPuzzleView;
   const { isFocusing } = globalThis.FocusPomodoro;
   const { focusTask } = globalThis.FocusTasks;
   const { dayKey, recordActivity } = globalThis.FocusProgress;
@@ -115,7 +117,7 @@
       "text-align": "center",
       "box-shadow": "8px 8px 0 #36c5f0, 0 24px 60px rgba(0, 0, 0, 0.4)",
     },
-    question: { "font-size": "28px", "font-weight": "800", margin: "0 0 12px" },
+    question: { "font-weight": "800", margin: "0 0 12px" },
     input: { width: "100%", "box-sizing": "border-box", padding: "10px", "font-size": "18px", "text-align": "center" },
     primary: { background: "#111212", color: "#fff", border: "1px solid #111212", "border-radius": "4px", cursor: "pointer" },
   };
@@ -148,9 +150,21 @@
     );
   }
 
+  let activeView = null;
+
   function closePuzzle() {
+    activeView?.destroy();
+    activeView = null;
     document.getElementById(HOST_ID)?.remove();
     puzzleOpen = false;
+  }
+
+  function onPuzzleSolved() {
+    closePuzzle();
+    shortsSinceLastPuzzle = 0;
+    reportStatus();
+    bumpStats({ puzzlesSolved: 1 });
+    document.querySelector("video")?.play().catch(() => {});
   }
 
   function openPuzzle() {
@@ -162,28 +176,26 @@
     const host = pin(el("div", { id: HOST_ID }), CRITICAL_STYLES.host);
     const shadow = host.attachShadow({ mode: "open" });
     const style = el("style", { textContent: globalThis.FocusOverlayCss || "" });
-
     const focusing = isFocusing(pomodoro);
-    let puzzle = generateChallenge(difficultyFor(shortsThisSession, settings.difficultyStep));
 
-    const kindLabel = el("div", { className: "kind", textContent: puzzle.prompt });
-    const question = pin(el("div", { className: "question", textContent: puzzle.text }), CRITICAL_STYLES.question);
-    const input = pin(
-      el("input", { type: "text", inputMode: "numeric", autocomplete: "off", placeholder: "Your answer" }),
-      CRITICAL_STYLES.input
-    );
-    input.setAttribute("aria-label", "Answer");
-    const feedback = el("div", { className: "feedback", role: "status" });
-    const submit = pin(el("button", { type: "submit", className: "primary", textContent: "Check" }), CRITICAL_STYLES.primary);
-    const another = el("button", { type: "button", className: "ghost", textContent: "Different puzzle" });
-    const leave = el("button", { type: "button", className: "ghost", textContent: "Leave Shorts" });
+    activeView = createPuzzleView({
+      next: () => pickChallenge(difficultyFor(shortsThisSession, settings.difficultyStep), settings.puzzleKinds),
+      onSolved: onPuzzleSolved,
+      decorate: ({ question, input, submit }) => {
+        pin(question, CRITICAL_STYLES.question);
+        pin(input, CRITICAL_STYLES.input);
+        pin(submit, CRITICAL_STYLES.primary);
+      },
+    });
+    const form = activeView.element;
+    const leave = el("button", { type: "button", className: "ghost leave", textContent: "Leave Shorts" });
+    form.append(leave);
 
     const task = focusTask(tasks, focusTaskId);
     const reminder = task
       ? el("p", { className: "reminder" }, ["🎯 You wanted to: ", el("strong", { textContent: task.title })])
       : el("p", { className: "reminder", textContent: "Is this what you meant to be doing?" });
 
-    const form = el("form", {}, [kindLabel, question, input, feedback, el("div", { className: "row" }, [submit, another]), leave]);
     const card = el("div", { className: "card", role: "dialog", ariaModal: "true" }, [
       el("p", { className: "scribble", textContent: focusing ? "hey, focus time!" : "hey, wait!" }),
       el("h2", { textContent: focusing ? "You're in a focus session" : "Time for a brain check" }),
@@ -198,27 +210,6 @@
     pin(card, CRITICAL_STYLES.card);
     shadow.append(style, pin(el("div", { className: "backdrop" }, [card]), CRITICAL_STYLES.backdrop));
 
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      if (isCorrect(input.value, puzzle.answer)) {
-        closePuzzle();
-        shortsSinceLastPuzzle = 0;
-        reportStatus();
-        bumpStats({ puzzlesSolved: 1 });
-        document.querySelector("video")?.play().catch(() => {});
-        return;
-      }
-      feedback.textContent = "Not quite. Try again.";
-      input.value = "";
-      input.focus();
-    });
-    another.addEventListener("click", () => {
-      puzzle = generateChallenge(difficultyFor(shortsThisSession, settings.difficultyStep));
-      kindLabel.textContent = puzzle.prompt;
-      question.textContent = puzzle.text;
-      feedback.textContent = "";
-      input.focus();
-    });
     leave.addEventListener("click", () => {
       closePuzzle();
       shortsSinceLastPuzzle = 0;
@@ -230,7 +221,7 @@
     );
 
     document.documentElement.append(host);
-    input.focus();
+    activeView.focus();
   }
 
   function onShortChanged(id) {

@@ -8,6 +8,10 @@ globalThis.FocusOverlayCss = `
   all: initial;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .backdrop {
   position: fixed;
   inset: 0;
@@ -215,7 +219,76 @@ button:active {
   box-shadow: none;
 }
 
-form > .ghost {
+/* ---------- Puzzle types ---------- */
+.kind-phrase .question {
+  display: block;
+  font: 22px/1.35 var(--hand);
+  letter-spacing: 0;
+  user-select: none;
+}
+
+.kind-scramble .question {
+  letter-spacing: 4px;
+}
+
+.kind-memory .question {
+  letter-spacing: 3px;
+}
+
+.question.memorising {
+  border-color: var(--berry);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
+  gap: 8px;
+  margin: 4px 0 6px;
+}
+
+.choice {
+  padding: 10px 0;
+  border: 1px solid var(--ink);
+  background: #ffffff;
+  font: 30px/1 system-ui, "Segoe UI Emoji", "Apple Color Emoji", sans-serif;
+  box-shadow: 3px 3px 0 var(--rule);
+}
+
+.choice:hover {
+  background: #f4f4f4;
+  box-shadow: 3px 3px 0 var(--cyan);
+}
+
+.choice:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.shake {
+  animation: shake 360ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+@keyframes shake {
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .question.memorising,
+  .shake {
+    animation: none;
+  }
+}
+
+.leave {
   width: 100%;
   margin-top: 12px;
   border: 0;
