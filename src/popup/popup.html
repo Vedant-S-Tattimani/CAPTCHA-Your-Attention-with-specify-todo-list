@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Focus Guard</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="top">
+      <h1>Focus Guard</h1>
+      <nav class="tabs" role="tablist" aria-label="Sections">
+        <button role="tab" id="tab-focus" aria-controls="panel-focus" aria-selected="true">Focus</button>
+        <button role="tab" id="tab-tasks" aria-controls="panel-tasks" aria-selected="false" tabindex="-1">Tasks</button>
+        <button role="tab" id="tab-guard" aria-controls="panel-guard" aria-selected="false" tabindex="-1">Guard</button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- Pomodoro (from Specify) -->
+      <section id="panel-focus" role="tabpanel" aria-labelledby="tab-focus">
+        <div class="dial" id="dial" data-mode="work">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="track" cx="60" cy="60" r="54" />
+            <circle class="progress" id="progress" cx="60" cy="60" r="54" />
+          </svg>
+          <div class="dial-text">
+            <span class="mode" id="mode-label">Work</span>
+            <span class="clock" id="clock" role="timer" aria-live="off">25:00</span>
+            <span class="count" id="session-count">0 sessions done</span>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="btn-toggle" class="primary">Start</button>
+          <button id="btn-reset" class="ghost">Reset</button>
+          <button id="btn-skip" class="ghost" title="Jump to the next phase">Skip</button>
+        </div>
+        <p class="hint" id="focus-hint"></p>
+        <div class="minutes">
+          <label>Work <input type="number" id="work-minutes" min="1" max="180" /> min</label>
+          <label>Break <input type="number" id="break-minutes" min="1" max="180" /> min</label>
+        </div>
+      </section>
+
+      <!-- Tasks (from Specify) -->
+      <section id="panel-tasks" role="tabpanel" aria-labelledby="tab-tasks" hidden>
+        <form id="task-form" class="task-form" novalidate>
+          <input id="task-title" type="text" maxlength="120" placeholder="What needs doing?" aria-label="Task title" required />
+          <div class="task-meta">
+            <select id="task-tag" aria-label="Tag"></select>
+            <select id="task-priority" aria-label="Priority">
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+            </select>
+            <input id="task-deadline" type="date" aria-label="Deadline" />
+            <button type="submit" class="primary">Add</button>
+          </div>
+          <p class="error" id="task-error" role="alert"></p>
+        </form>
+        <div class="task-tools">
+          <input id="task-search" type="search" placeholder="Search" aria-label="Search tasks" />
+          <select id="task-filter" aria-label="Filter by tag"></select>
+        </div>
+        <ul id="task-list" class="task-list"></ul>
+        <p class="empty" id="task-empty">No tasks yet. Add one above.</p>
+        <button id="btn-clear-done" class="link">Clear finished tasks</button>
+      </section>
+
+      <!-- Shorts guard (from CAPTCHA-Your-Attention) -->
+      <section id="panel-guard" role="tabpanel" aria-labelledby="tab-guard" hidden>
+        <label class="switch">
+          <input type="checkbox" id="guard-enabled" />
+          <span>Interrupt YouTube Shorts with puzzles</span>
+        </label>
+        <p class="guard-status" id="guard-status" role="status"></p>
+        <label class="field">
+          <span>Puzzle every <output id="puzzle-every-out"></output> shorts</span>
+          <input type="range" id="puzzle-every" min="1" max="50" />
+        </label>
+        <label class="field">
+          <span>Harder every <output id="difficulty-step-out"></output> shorts</span>
+          <input type="range" id="difficulty-step" min="1" max="50" />
+        </label>
+        <label class="switch">
+          <input type="checkbox" id="strict-focus" />
+          <span>During a work session, puzzle on every short</span>
+        </label>
+        <label class="switch">
+          <input type="checkbox" id="notify" />
+          <span>Notify me when a timer phase ends</span>
+        </label>
+
+        <h2>Your stats</h2>
+        <dl class="stats">
+          <div><dt>Shorts watched</dt><dd id="stat-shorts">0</dd></div>
+          <div><dt>Time on Shorts</dt><dd id="stat-time">0m</dd></div>
+          <div><dt>Puzzles solved</dt><dd id="stat-solved">0</dd></div>
+        </dl>
+        <button id="btn-reset-stats" class="link">Reset stats</button>
+      </section>
+    </main>
+
+    <script src="../lib/settings.js"></script>
+    <script src="../lib/pomodoro.js"></script>
+    <script src="../lib/tasks.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
