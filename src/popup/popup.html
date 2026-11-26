@@ -20,6 +20,14 @@
         <time id="status-time"></time>
       </span>
     </div>
+    <!-- Shown when Chrome is still running an older copy than the files on disk (see popup.js) -->
+    <div class="update-banner" id="update-banner" role="alert" hidden>
+      <span class="update-text">
+        <strong>Update ready.</strong> Chrome is still running <span id="update-running"></span>. YouTube won't get new features
+        until you reload.
+      </span>
+      <button type="button" class="primary update-btn" id="update-reload">Reload now</button>
+    </div>
     <header class="top">
       <p class="tagline" id="tagline">let's focus!</p>
       <div class="title-row">

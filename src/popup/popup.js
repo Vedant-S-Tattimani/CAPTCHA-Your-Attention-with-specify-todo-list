@@ -335,6 +335,23 @@
     });
   }
 
+  /*
+   * Unpacked extensions read popup files from disk every time, but Chrome only re-reads the
+   * manifest and the YouTube content scripts when the extension is reloaded. If the files were
+   * updated without a reload, the popup looks new while YouTube still runs old code. Detect that
+   * by comparing the running version with manifest.json on disk, and offer a one-click reload.
+   */
+  async function checkForStaleInstall() {
+    const running = chrome.runtime.getManifest().version;
+    const response = await fetch(chrome.runtime.getURL("manifest.json"), { cache: "no-store" });
+    if (!response.ok) return;
+    const onDisk = (await response.json()).version;
+    if (!onDisk || onDisk === running) return;
+    $("update-running").textContent = `v${running} (files are v${onDisk})`;
+    $("update-banner").hidden = false;
+    $("update-reload").addEventListener("click", () => chrome.runtime.reload());
+  }
+
   /* ---------- boot ---------- */
   function onStorageChanged(changes, area) {
     if (area !== "local") return;
@@ -358,6 +375,7 @@
 
   async function init() {
     $("version").textContent = `v${chrome.runtime.getManifest().version}`;
+    checkForStaleInstall().catch((error) => console.warn("[Focus Guard] update check failed", error));
     setupTabs();
     setupFocus();
     setupTasks();
