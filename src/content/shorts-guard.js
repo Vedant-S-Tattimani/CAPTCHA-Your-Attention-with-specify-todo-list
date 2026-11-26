@@ -79,6 +79,44 @@
     return node;
   }
 
+  /*
+   * Layout that must survive even if the shadow stylesheet never applies (seen in real use:
+   * the puzzle rendered as bare controls in the corner, under YouTube's header). Set inline
+   * with !important so neither YouTube's CSS nor a missing stylesheet can undo it.
+   */
+  const CRITICAL_STYLES = {
+    host: { position: "fixed", inset: "0", "z-index": "2147483647", display: "block", margin: "0", padding: "0" },
+    backdrop: {
+      position: "fixed",
+      inset: "0",
+      display: "flex",
+      "align-items": "center",
+      "justify-content": "center",
+      padding: "16px",
+      background: "rgba(10, 12, 16, 0.78)",
+      "font-family": 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+    },
+    card: {
+      width: "100%",
+      "max-width": "360px",
+      "box-sizing": "border-box",
+      padding: "24px",
+      "border-radius": "16px",
+      background: "#fffdf8",
+      color: "#1f2328",
+      "text-align": "center",
+      "box-shadow": "0 20px 50px rgba(0, 0, 0, 0.35)",
+    },
+    question: { "font-size": "26px", "font-weight": "600", margin: "0 0 12px" },
+    input: { width: "100%", "box-sizing": "border-box", padding: "10px", "font-size": "18px", "text-align": "center" },
+    primary: { background: "#d9480f", color: "#fff", border: "0", padding: "10px 12px", "border-radius": "10px", cursor: "pointer" },
+  };
+
+  function pin(node, styles) {
+    Object.entries(styles).forEach(([prop, value]) => node.style.setProperty(prop, value, "important"));
+    return node;
+  }
+
   function closePuzzle() {
     document.getElementById(HOST_ID)?.remove();
     puzzleOpen = false;
@@ -89,20 +127,21 @@
     puzzleOpen = true;
     pauseVideos();
 
-    const host = el("div", { id: HOST_ID });
-    // Inline so the overlay covers the page even before (or without) the shadow styles applying.
-    host.style.cssText = "position:fixed;inset:0;z-index:2147483647;";
+    const host = pin(el("div", { id: HOST_ID }), CRITICAL_STYLES.host);
     const shadow = host.attachShadow({ mode: "open" });
     const style = el("style", { textContent: globalThis.FocusOverlayCss || "" });
 
     const focusing = isFocusing(pomodoro);
     let puzzle = generatePuzzle(difficultyFor(shortsThisSession, settings.difficultyStep));
 
-    const question = el("div", { className: "question", textContent: `${puzzle.text} = ?` });
-    const input = el("input", { type: "text", inputMode: "numeric", autocomplete: "off", placeholder: "Your answer" });
+    const question = pin(el("div", { className: "question", textContent: `${puzzle.text} = ?` }), CRITICAL_STYLES.question);
+    const input = pin(
+      el("input", { type: "text", inputMode: "numeric", autocomplete: "off", placeholder: "Your answer" }),
+      CRITICAL_STYLES.input
+    );
     input.setAttribute("aria-label", "Answer");
     const feedback = el("div", { className: "feedback", role: "status" });
-    const submit = el("button", { type: "submit", className: "primary", textContent: "Check" });
+    const submit = pin(el("button", { type: "submit", className: "primary", textContent: "Check" }), CRITICAL_STYLES.primary);
     const another = el("button", { type: "button", className: "ghost", textContent: "Different puzzle" });
     const leave = el("button", { type: "button", className: "ghost", textContent: "Leave Shorts" });
 
@@ -122,7 +161,8 @@
       form,
     ]);
     card.setAttribute("aria-label", "Focus Guard puzzle");
-    shadow.append(style, el("div", { className: "backdrop" }, [card]));
+    pin(card, CRITICAL_STYLES.card);
+    shadow.append(style, pin(el("div", { className: "backdrop" }, [card]), CRITICAL_STYLES.backdrop));
 
     form.addEventListener("submit", (event) => {
       event.preventDefault();

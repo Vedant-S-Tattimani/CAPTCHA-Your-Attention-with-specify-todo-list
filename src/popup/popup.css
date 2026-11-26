@@ -65,6 +65,11 @@ h1 {
   letter-spacing: -0.2px;
 }
 
+.version {
+  color: var(--muted);
+  font: 500 11px var(--font-num);
+}
+
 h1::before {
   content: "";
   display: inline-block;

@@ -226,6 +226,7 @@
 
   /* ---------- boot ---------- */
   async function init() {
+    $("version").textContent = `v${chrome.runtime.getManifest().version}`;
     setupTabs();
     setupFocus();
     setupTasks();
