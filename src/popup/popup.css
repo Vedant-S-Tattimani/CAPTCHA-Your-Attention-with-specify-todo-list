@@ -85,6 +85,11 @@
   box-sizing: border-box;
 }
 
+/* The hidden attribute must always win over component display rules (e.g. display: grid). */
+[hidden] {
+  display: none !important;
+}
+
 body {
   width: 360px;
   min-height: 460px;
@@ -525,25 +530,73 @@ kbd {
 }
 
 /* ---------- Focus: pinned task note, daily goal, settings ---------- */
+/* Pinned task: a straight card with a green "pin" stripe, matching the goal card below */
 .focus-on {
   display: grid;
-  gap: 2px;
-  margin: 18px 8px 0;
-  padding: 10px 14px 12px;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--green);
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+}
+
+.focus-on-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   background: var(--note-mint);
-  text-align: center;
-  overflow-wrap: anywhere;
-  transform: rotate(-1.5deg);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05), 0 8px 16px rgba(17, 18, 18, 0.08);
+  font-size: 18px;
+}
+
+.focus-on-body {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
 }
 
 .focus-on-label {
   color: var(--dim);
-  font: 17px/1.1 var(--font-hand);
+  font: 600 10px var(--font-mono);
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
-.focus-on strong {
-  font-size: 15px;
+.focus-on-title {
+  font: 800 15px/1.25 var(--font-display);
+  letter-spacing: 0.3px;
+  overflow-wrap: anywhere;
+}
+
+.focus-on-pick {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--cyan-strong);
+  font: 18px/1.1 var(--font-hand);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.focus-on-pick:hover {
+  color: var(--ink);
+}
+
+/* No pinned task: quieter dashed card, inviting you to pick one */
+.focus-on.empty-state {
+  border-style: dashed;
+  border-left: 1px dashed var(--rule-2);
+}
+
+.focus-on.empty-state .focus-on-icon {
+  background: var(--raise);
+  filter: grayscale(1);
 }
 
 .goal {

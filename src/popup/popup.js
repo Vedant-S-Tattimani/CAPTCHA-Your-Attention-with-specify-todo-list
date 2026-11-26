@@ -125,8 +125,11 @@
   /* ---------- Focus tab ---------- */
   function renderFocusOn() {
     const task = T.focusTask(tasks, focusTaskId);
-    $("focus-on").hidden = !task;
+    $("focus-on").classList.toggle("empty-state", !task);
+    $("focus-on-label").textContent = task ? "Focusing on" : "No focus task yet";
     $("focus-on-title").textContent = task ? task.title : "";
+    $("focus-on-title").hidden = !task;
+    $("focus-on-pick").hidden = Boolean(task);
   }
 
   const TIME_FORMAT = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" });
@@ -173,6 +176,10 @@
     $("btn-toggle").addEventListener("click", () => timer(pomodoro.running ? "pause" : "start").catch(reportError));
     $("btn-reset").addEventListener("click", () => timer("reset").catch(reportError));
     $("btn-skip").addEventListener("click", () => timer("skip").catch(reportError));
+    $("focus-on-pick").addEventListener("click", () => {
+      $("tab-tasks").click();
+      $("task-title").focus();
+    });
     const numbers = { "work-minutes": "workMinutes", "break-minutes": "breakMinutes", "daily-goal": "dailyGoal" };
     Object.entries(numbers).forEach(([id, key]) =>
       $(id).addEventListener("change", (e) => saveSettings({ [key]: e.target.value }).catch(reportError))

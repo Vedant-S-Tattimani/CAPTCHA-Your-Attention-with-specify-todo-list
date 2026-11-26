@@ -59,10 +59,14 @@
           <button id="btn-reset" class="ghost">Reset</button>
           <button id="btn-skip" class="ghost" title="Jump to the next phase">Skip</button>
         </div>
-        <p class="focus-on" id="focus-on" hidden>
-          <span class="focus-on-label">🎯 Focusing on</span>
-          <strong id="focus-on-title"></strong>
-        </p>
+        <div class="focus-on" id="focus-on">
+          <span class="focus-on-icon" aria-hidden="true">🎯</span>
+          <div class="focus-on-body">
+            <span class="focus-on-label" id="focus-on-label">Focusing on</span>
+            <strong class="focus-on-title" id="focus-on-title"></strong>
+            <button type="button" class="focus-on-pick" id="focus-on-pick">Pick a task to focus on →</button>
+          </div>
+        </div>
         <p class="hint" id="focus-hint"></p>
 
         <div class="goal" aria-labelledby="goal-label">
