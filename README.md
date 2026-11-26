@@ -87,6 +87,8 @@ The daily history keeps the last 60 days.
 
 Turn each type on or off in the **Guard** tab (at least one stays on). Press **▶ Try** on any type to play a demo inside the popup. Demo solves don't count towards your stats.
 
+Selected types come in a **shuffled rotation**: you get every selected type once before any type repeats, and never the same type twice in a row. The rotation is saved, so it carries on across tabs, page reloads and platforms.
+
 | Type | What you do | Gets harder by |
 |------|-------------|----------------|
 | ➗ Math | Solve `7 + 3 × 2` (normal operator precedence) | More operations |

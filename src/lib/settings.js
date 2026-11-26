@@ -18,6 +18,7 @@
     totals: "totals",
     focusTaskId: "focusTaskId",
     todos: "todos",
+    puzzleRotation: "puzzleRotation",
   });
 
   const STATUS_FRESH_MS = 2 * 60 * 1000;

@@ -89,6 +89,52 @@ test("phrase ignores case, punctuation and extra spaces but not missing words", 
   assert.equal(Z.generate("phrase", 1).noPaste, true);
 });
 
+/** Draws n kinds, carrying the rotation forward like the guard does. */
+function drawKinds(n, enabled, start) {
+  let rotation = start;
+  return Array.from({ length: n }, () => {
+    const next = Z.nextKind(rotation, enabled);
+    rotation = next.rotation;
+    return next.kind;
+  });
+}
+
+test("rotation shows every selected type once before any repeats", () => {
+  for (let trial = 0; trial < 50; trial++) {
+    const draws = drawKinds(PUZZLE_KINDS.length * 4, PUZZLE_KINDS);
+    for (let round = 0; round < 4; round++) {
+      const slice = draws.slice(round * 6, round * 6 + 6);
+      assert.deepEqual([...slice].sort(), [...PUZZLE_KINDS].sort(), `round ${round}: ${slice}`);
+    }
+  }
+});
+
+test("rotation never repeats a type back-to-back, even across rounds", () => {
+  for (let trial = 0; trial < 50; trial++) {
+    const draws = drawKinds(60, PUZZLE_KINDS);
+    draws.slice(1).forEach((kind, i) => assert.notEqual(kind, draws[i], `repeat at ${i + 1}: ${draws}`));
+    const two = drawKinds(20, ["math", "memory"]);
+    two.slice(1).forEach((kind, i) => assert.notEqual(kind, two[i]));
+  }
+});
+
+test("rotation only uses selected types and adapts when the selection changes", () => {
+  const draws = drawKinds(12, ["scramble", "odd", "phrase"]);
+  assert.deepEqual([...new Set(draws)].sort(), ["odd", "phrase", "scramble"]);
+  // Mid-round, the user switches "odd" off and "memory" on.
+  let { rotation } = Z.nextKind(undefined, ["scramble", "odd", "phrase"]);
+  const after = [];
+  for (let i = 0; i < 6; i++) {
+    const next = Z.nextKind(rotation, ["scramble", "phrase", "memory"]);
+    rotation = next.rotation;
+    after.push(next.kind);
+  }
+  assert.ok(!after.includes("odd"), "switched-off type never shows");
+  assert.ok(after.includes("memory"), "newly selected type joins");
+  assert.equal(Z.nextKind(undefined, ["phrase"]).kind, "phrase");
+  assert.equal(Z.nextKind({ bag: "junk" }, ["math"]).kind, "math", "bad saved state is ignored");
+});
+
 test("pickChallenge only uses enabled kinds and falls back when none are valid", () => {
   const kinds = new Set(repeat(200, () => Z.pickChallenge(2, ["scramble", "odd"]).kind));
   assert.deepEqual([...kinds].sort(), ["odd", "scramble"]);

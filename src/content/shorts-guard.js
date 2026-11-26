@@ -14,7 +14,7 @@
 
   const { KEYS, sanitizeSettings, shouldShowPuzzle } = globalThis.FocusSettings;
   const { difficultyFor } = globalThis.FocusCaptcha;
-  const { pickChallenge } = globalThis.FocusPuzzles;
+  const { generate, nextKind } = globalThis.FocusPuzzles;
   const { create: createPuzzleView } = globalThis.FocusPuzzleView;
   const { isFocusing } = globalThis.FocusPomodoro;
   const { focusTask } = globalThis.FocusTasks;
@@ -187,6 +187,21 @@
     );
   }
 
+  /*
+   * Puzzle types come in a shuffled rotation: every selected type once before any repeats. The
+   * rotation is saved, so it carries on across tabs, reloads and different sites.
+   */
+  let puzzleRotation = null;
+
+  function nextPuzzle() {
+    const { kind, rotation } = nextKind(puzzleRotation, settings.puzzleKinds);
+    puzzleRotation = rotation;
+    chrome.storage.local
+      .set({ [KEYS.puzzleRotation]: rotation })
+      .catch((error) => console.warn("[Focus Guard] could not save puzzle rotation", error));
+    return generate(kind, difficultyFor(shortsThisSession, settings.difficultyStep));
+  }
+
   let activeView = null;
 
   function closePuzzle() {
@@ -216,7 +231,7 @@
     const focusing = isFocusing(pomodoro);
 
     activeView = createPuzzleView({
-      next: () => pickChallenge(difficultyFor(shortsThisSession, settings.difficultyStep), settings.puzzleKinds),
+      next: nextPuzzle,
       onSolved: onPuzzleSolved,
       decorate: ({ question, input, submit }) => {
         pin(question, CRITICAL_STYLES.question);
@@ -306,9 +321,10 @@
   }
 
   chrome.storage.local
-    .get([KEYS.settings, KEYS.pomodoro, KEYS.tasks, KEYS.focusTaskId])
+    .get([KEYS.settings, KEYS.pomodoro, KEYS.tasks, KEYS.focusTaskId, KEYS.puzzleRotation])
     .then((data) => {
       focusTaskId = data[KEYS.focusTaskId] || null;
+      puzzleRotation = data[KEYS.puzzleRotation] || null;
       settings = sanitizeSettings(data[KEYS.settings]);
       pomodoro = data[KEYS.pomodoro] || null;
       tasks = Array.isArray(data[KEYS.tasks]) ? data[KEYS.tasks] : [];
@@ -321,6 +337,8 @@
     if (changes[KEYS.settings]) settings = sanitizeSettings(changes[KEYS.settings].newValue);
     if (changes[KEYS.pomodoro]) pomodoro = changes[KEYS.pomodoro].newValue || null;
     if (changes[KEYS.focusTaskId]) focusTaskId = changes[KEYS.focusTaskId].newValue || null;
+    // Another tab drew a puzzle: continue the same rotation here.
+    if (changes[KEYS.puzzleRotation]) puzzleRotation = changes[KEYS.puzzleRotation].newValue || null;
     if (changes[KEYS.tasks]) tasks = Array.isArray(changes[KEYS.tasks].newValue) ? changes[KEYS.tasks].newValue : [];
     if (!settings.guardEnabled && puzzleOpen) closePuzzle();
   });

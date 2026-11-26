@@ -143,6 +143,27 @@
     return generate(pick(random, kinds), difficulty, random);
   }
 
+  /**
+   * Fair rotation ("shuffle bag"): every enabled kind comes up once, in a shuffled order, before
+   * any kind repeats. Kinds switched off are skipped; newly switched-on kinds join the next round.
+   * A new round never starts with the kind that ended the last one.
+   *
+   * @param {{ bag?: string[], last?: string | null } | undefined} rotation saved rotation state
+   * @param {string[]} enabledKinds
+   * @returns {{ kind: string, rotation: { bag: string[], last: string } }}
+   */
+  function nextKind(rotation, enabledKinds, random = Math.random) {
+    const kinds = settingsApi.sanitizeKinds(enabledKinds);
+    const saved = rotation && Array.isArray(rotation.bag) ? rotation : { bag: [], last: null };
+    let bag = saved.bag.filter((kind) => kinds.includes(kind));
+    if (bag.length === 0) {
+      bag = shuffle(random, kinds);
+      if (bag.length > 1 && bag[0] === saved.last) bag.push(bag.shift());
+    }
+    const [kind, ...rest] = bag;
+    return { kind, rotation: { bag: rest, last: kind } };
+  }
+
   /* ---------- answer checking ---------- */
 
   const normalizeLetters = (s) => String(s ?? "").toUpperCase().replace(/[^A-Z]/g, "");
@@ -172,7 +193,7 @@
     }
   }
 
-  const api = { KIND_INFO, WORDS, PHRASES, EMOJI_SETS, generate, pickChallenge, check };
+  const api = { KIND_INFO, WORDS, PHRASES, EMOJI_SETS, generate, pickChallenge, nextKind, check };
   root.FocusPuzzles = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);
