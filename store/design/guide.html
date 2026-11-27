@@ -1,0 +1,542 @@
+<!doctype html>
+<!-- Focus Guard user and developer guide. Printed to docs/Focus-Guard-Guide.pdf with headless Edge:
+     msedge --headless=new --no-pdf-header-footer --print-to-pdf=docs/Focus-Guard-Guide.pdf store/design/guide.html -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Focus Guard Guide</title>
+    <link rel="stylesheet" href="../../src/fonts/fonts.css" />
+    <style>
+      :root {
+        --ink: #111212; --dim: #5d6063; --faint: #9a9c9e; --rule: #e4e4e4; --raise: #f4f4f4;
+        --cyan: #36c5f0; --cyan-strong: #1a8fbd; --berry: #e01e5a; --yellow: #ecb22e; --green: #2fbc81;
+        --cream: #f5dda1; --mint: #bfe8d3; --sky: #c7ebf9; --blush: #f8c8d7;
+        --display: "Bitcount Prop Single", sans-serif; --hand: "Shadows Into Light", cursive;
+        --body: "Segoe UI", system-ui, sans-serif; --mono: ui-monospace, Consolas, monospace;
+      }
+      @page { size: A4; margin: 16mm 16mm 18mm; }
+      @page :first { margin: 0; }
+      * { box-sizing: border-box; }
+      html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body { margin: 0; background: #fff; color: var(--ink); font: 10.5pt/1.55 var(--body); }
+
+      /* Cover */
+      .cover {
+        position: relative; height: 297mm; padding: 30mm 22mm; page-break-after: always; overflow: hidden;
+        background-color: #fff;
+        background-image: linear-gradient(#efefef 1px, transparent 1px), linear-gradient(90deg, #efefef 1px, transparent 1px);
+        background-size: 9mm 9mm;
+      }
+      .cover .hand { display: inline-block; font: 26pt/1 var(--hand); transform: rotate(-4deg); border-bottom: 3px solid var(--cyan); padding-bottom: 4px; }
+      .sel { position: relative; display: inline-block; margin-top: 14mm; padding: 10px 16px 6px; border: 2px solid var(--cyan); font: 800 44pt/1 var(--display); letter-spacing: 2px; }
+      .sel i { position: absolute; width: 10px; height: 10px; background: var(--cyan); }
+      .sel .tl { top: -6px; left: -6px; } .sel .tr { top: -6px; right: -6px; } .sel .bl { bottom: -6px; left: -6px; } .sel .br { bottom: -6px; right: -6px; }
+      .cover .lede { max-width: 135mm; margin: 12mm 0 8mm; font-size: 15pt; line-height: 1.4; color: #2c2e2e; }
+      .cover .shot { width: 100%; border: 2px solid var(--ink); border-radius: 6px; box-shadow: 8px 8px 0 var(--cyan); }
+      .cover .meta { position: absolute; left: 22mm; right: 22mm; bottom: 22mm; display: flex; justify-content: space-between; font: 9pt var(--mono); color: var(--dim); letter-spacing: 0.4px; }
+      .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10mm; }
+      .chips span { padding: 3px 10px 2px; border: 2px solid var(--ink); border-radius: 99px; background: #fff; font: 700 9pt var(--display); letter-spacing: 0.4px; }
+
+      /* Contents */
+      .toc { page-break-after: always; }
+      .toc ol { counter-reset: s; list-style: none; padding: 0; margin: 8mm 0 0; }
+      .toc li { counter-increment: s; display: flex; gap: 12px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--rule); font-size: 12pt; }
+      .toc li::before { content: counter(s, decimal-leading-zero); font: 700 12pt var(--display); color: var(--cyan-strong); min-width: 28px; }
+      .toc li span { color: var(--dim); font-size: 9.5pt; margin-left: auto; }
+
+      /* Sections */
+      section.chapter { page-break-before: always; }
+      .kicker { font: 700 9pt var(--mono); color: var(--cyan-strong); letter-spacing: 1.4px; text-transform: uppercase; }
+      h1 { margin: 2px 0 4mm; font: 800 26pt/1.1 var(--display); letter-spacing: 1px; }
+      h2 { margin: 7mm 0 2mm; font: 800 14pt/1.2 var(--display); letter-spacing: 0.5px; page-break-after: avoid; }
+      h3 { margin: 5mm 0 1.5mm; font-size: 11pt; page-break-after: avoid; }
+      p { margin: 0 0 3mm; }
+      ul, ol { margin: 0 0 3mm; padding-left: 5mm; }
+      li { margin: 0 0 1.2mm; }
+      code, kbd { font: 9.5pt var(--mono); background: var(--raise); border: 1px solid var(--rule); border-radius: 3px; padding: 0 4px; }
+      kbd { border-bottom-width: 2px; }
+      .intro { font-size: 12pt; color: #2c2e2e; }
+
+      table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9.5pt; page-break-inside: avoid; }
+      th { text-align: left; font: 700 8.5pt var(--mono); letter-spacing: 0.6px; text-transform: uppercase; color: var(--dim); border-bottom: 2px solid var(--ink); padding: 5px 8px; }
+      td { border-bottom: 1px solid var(--rule); padding: 6px 8px; vertical-align: top; }
+      td:first-child { font-weight: 600; white-space: nowrap; }
+
+      .note { margin: 4mm 0; padding: 4mm 5mm; border: 2px solid var(--ink); border-radius: 6px; page-break-inside: avoid; }
+      .note b.tag { display: inline-block; margin-bottom: 1mm; font: 700 9pt var(--display); letter-spacing: 0.6px; }
+      .note.tip { background: var(--mint); } .note.warn { background: var(--cream); } .note.info { background: var(--sky); } .note.stop { background: var(--blush); }
+      .note p:last-child, .note ul:last-child { margin-bottom: 0; }
+
+      .steps { counter-reset: st; list-style: none; padding: 0; }
+      .steps > li { counter-increment: st; position: relative; padding: 0 0 2mm 11mm; }
+      .steps > li::before { content: counter(st); position: absolute; left: 0; top: -1px; width: 7mm; height: 7mm; border: 2px solid var(--ink); border-radius: 50%; display: grid; place-items: center; font: 700 9pt var(--display); background: var(--yellow); }
+
+      figure { margin: 4mm 0 5mm; page-break-inside: avoid; }
+      figure img { width: 100%; border: 2px solid var(--ink); border-radius: 6px; display: block; }
+      figcaption { margin-top: 2mm; font: 9pt var(--mono); color: var(--dim); }
+
+      .shots { display: flex; justify-content: center; align-items: flex-start; gap: 6mm; margin: 4mm 0 5mm; page-break-inside: avoid; }
+      .shots figure { margin: 0; flex: 0 0 auto; }
+      .shots figcaption { max-width: 56mm; }
+      .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+      .card { border: 2px solid var(--ink); border-radius: 6px; padding: 4mm; box-shadow: 4px 4px 0 var(--rule); page-break-inside: avoid; }
+      .card h3 { margin-top: 0; }
+      .mono { font-family: var(--mono); }
+      .footer-note { margin-top: 10mm; font-size: 9pt; color: var(--dim); }
+    </style>
+  </head>
+  <body>
+    <!-- ============ COVER ============ -->
+    <div class="cover">
+      <div class="hand">let's focus!</div><br />
+      <div class="sel">FOCUS GUARD<i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i></div>
+      <p class="lede">The complete guide: what it does, how to install and use every feature, how your data is handled, and how the project is built and published.</p>
+      <div class="chips"><span>▶ YOUTUBE SHORTS</span><span>INSTAGRAM</span><span>TIKTOK</span><span>FACEBOOK</span><span>SNAPCHAT</span></div>
+      <img class="shot" src="../images/promo-large-1400x560.png" alt="Focus Guard promotional tile" />
+      <div class="meta"><span>VERSION 2.5.2 · MANIFEST V3</span><span>CHROME · MICROSOFT EDGE</span><span>© 2026 VEDANT-S-TATTIMANI · MIT</span></div>
+    </div>
+
+    <!-- ============ CONTENTS ============ -->
+    <div class="toc">
+      <div class="kicker">Inside this guide</div>
+      <h1>Contents</h1>
+      <ol>
+        <li>What is Focus Guard? <span>The idea and how the parts work together</span></li>
+        <li>Installing <span>Edge Add-ons store, Chrome and Edge developer mode</span></li>
+        <li>Guard: the scroll stopper <span>Platforms, settings, status line, stats</span></li>
+        <li>Puzzle types <span>Six puzzles, rotation and difficulty</span></li>
+        <li>Focus: the Pomodoro timer <span>Timer, daily goal, badge, notifications, shortcut</span></li>
+        <li>Tasks and quick todos <span>Create, edit, sort, search, views, focus pin</span></li>
+        <li>Insights and motivation <span>Levels, XP, streaks, Focus Garden, charts</span></li>
+        <li>Privacy and permissions <span>What is stored, what is never sent</span></li>
+        <li>Troubleshooting and FAQ <span>When the guard seems not to work</span></li>
+        <li>For developers <span>Project layout, tests, packaging, store images</span></li>
+        <li>Store listing and publishing <span>Edge Add-ons details and IDs</span></li>
+      </ol>
+    </div>
+
+    <!-- ============ 1. WHAT ============ -->
+    <section class="chapter">
+      <div class="kicker">01 · Overview</div>
+      <h1>What is Focus Guard?</h1>
+      <p class="intro">Focus Guard is a browser extension for Chrome and Microsoft Edge that helps you stop doomscrolling and get your real work done. It combines a <b>scroll guard</b> that interrupts short-video feeds with a short puzzle, and <b>focus tools</b>: a Pomodoro timer, tasks and quick todos.</p>
+
+      <h2>The core idea</h2>
+      <p>Every few short videos, Focus Guard pauses the feed and shows a puzzle you must solve before you keep watching. Next to the puzzle it shows the task you said you wanted to work on. That pause is a moment to decide whether this is really how you want to spend your time. You can always choose to leave the feed instead.</p>
+
+      <h2>How the parts work together</h2>
+      <ul>
+        <li><b>During a work session, feeds get strict.</b> Every video asks for a puzzle (you can turn this off).</li>
+        <li><b>The puzzle reminds you what you should be doing.</b> It shows your pinned 🎯 task, or your most important open task.</li>
+        <li><b>The toolbar icon shows W during work and B during a break</b>, and a notification tells you when each phase ends.</li>
+        <li><b>Everything you do earns progress:</b> finished sessions, finished tasks and solved puzzles add XP, grow your garden and keep your streak alive.</li>
+      </ul>
+
+      <h2>At a glance</h2>
+      <table>
+        <tr><th>Area</th><th>What you get</th></tr>
+        <tr><td>Guard</td><td>Puzzles on YouTube Shorts (on by default), Instagram Reels, TikTok, Facebook Reels and Snapchat Spotlight</td></tr>
+        <tr><td>Puzzles</td><td>Six types: Math, Next number, Word scramble, Memory, Odd one out, Type it out. Fair rotation, rising difficulty</td></tr>
+        <tr><td>Focus</td><td>Pomodoro timer that runs with the popup closed, break tips, daily goal, <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> shortcut</td></tr>
+        <tr><td>Tasks</td><td>Tags, priorities, deadlines; create, edit, delete, sort, search, list or grid view; quick todos</td></tr>
+        <tr><td>Insights</td><td>Levels and XP, streak, Focus Garden, 7-day charts of focus minutes against videos watched</td></tr>
+        <tr><td>Privacy</td><td>No account, no server, no tracking, no ads, no network requests. Everything stays in your browser</td></tr>
+      </table>
+
+<div class="shots"><figure><img src="../images/guide/overlay.png" alt="The real puzzle overlay pausing a short-video feed, with the pinned task as a reminder." style="width:95mm" /><figcaption>The real puzzle overlay pausing a short-video feed, with the pinned task as a reminder.</figcaption></figure></div>
+    </section>
+
+    <!-- ============ 2. INSTALL ============ -->
+    <section class="chapter">
+      <div class="kicker">02 · Getting started</div>
+      <h1>Installing</h1>
+
+      <h2>From the Microsoft Edge Add-ons store</h2>
+      <p>Focus Guard 2.5.2 has been submitted to Microsoft Edge Add-ons. Once it is approved, it is available at:</p>
+      <p class="mono" style="word-break: break-all">https://microsoftedge.microsoft.com/addons/detail/pheoidgkenchblmfbkkleecljipfddcl</p>
+      <ol class="steps">
+        <li>Open the link in Microsoft Edge.</li>
+        <li>Click <b>Get</b>, then <b>Add extension</b>.</li>
+        <li>Click the puzzle-piece (Extensions) icon in the toolbar and pin Focus Guard so the timer badge is visible.</li>
+      </ol>
+      <div class="note info"><b class="tag">BEFORE APPROVAL</b><p>Until Microsoft approves the listing, the link shows "not found". That is normal. Use developer mode below in the meantime.</p></div>
+
+      <h2>Developer mode (Chrome or Edge)</h2>
+      <ol class="steps">
+        <li>Open <code>chrome://extensions</code> in Chrome, or <code>edge://extensions</code> in Edge.</li>
+        <li>Turn on <b>Developer mode</b>.</li>
+        <li>Click <b>Load unpacked</b> and pick the <b><code>src</code></b> folder inside the project.</li>
+        <li>Pin Focus Guard from the Extensions menu.</li>
+      </ol>
+      <div class="note warn"><b class="tag">AFTER EDITING FILES</b><p>Click the reload icon on the extension's card. If you forget, the popup shows an <b>Update ready</b> banner with a one-click reload. Open tabs on guarded sites get the updated guard automatically.</p></div>
+
+      <h2>Your first five minutes</h2>
+      <ol class="steps">
+        <li>On first install a <b>welcome page</b> opens with a 3-step quick start.</li>
+        <li>Open the popup. It opens on the <b>Guard</b> tab, the heart of the extension.</li>
+        <li>Pick the puzzle types you like and press <b>▶ Try</b> to play one right in the popup.</li>
+        <li>Optionally switch on Instagram, TikTok, Facebook or Snapchat. The browser asks for that site's access at that moment.</li>
+        <li>Add a task in the <b>Tasks</b> tab, pin it with 🎯, then start a 25-minute session in <b>Focus</b>.</li>
+      </ol>
+      <figure>
+        <img src="../images/guide/welcome.png" alt="The welcome page" />
+        <figcaption>The welcome page that opens once on first install.</figcaption>
+      </figure>
+    </section>
+
+    <!-- ============ 3. GUARD ============ -->
+    <section class="chapter">
+      <div class="kicker">03 · The main feature</div>
+      <h1>Guard: the scroll stopper</h1>
+      <p class="intro">The guard counts the short videos you watch and interrupts the feed with a puzzle. Solve it to continue, ask for a different puzzle, or leave the feed.</p>
+
+<div class="shots"><figure><img src="../images/guide/guard-top.png" alt="The Guard tab: on/off switch, status line and platform switches." style="width:52mm" /><figcaption>The Guard tab: on/off switch, status line and platform switches.</figcaption></figure><figure><img src="../images/guide/guard-settings.png" alt="Rules and all-time stats with a count per platform." style="width:56mm" /><figcaption>Rules and all-time stats with a count per platform.</figcaption></figure></div>
+      <h2>Supported platforms</h2>
+      <table>
+        <tr><th>Platform</th><th>Where it runs</th><th>How a new video is detected</th></tr>
+        <tr><td>▶️ YouTube Shorts</td><td><code>youtube.com/shorts/…</code></td><td>The address changes per video. On by default</td></tr>
+        <tr><td>📸 Instagram Reels</td><td><code>instagram.com/reels/…</code></td><td>The address changes per reel</td></tr>
+        <tr><td>🎵 TikTok</td><td><code>tiktok.com/foryou</code>, <code>/@user/video/…</code></td><td>On the For You feed the address stays the same, so the guard watches which video fills the screen</td></tr>
+        <tr><td>📘 Facebook Reels</td><td><code>facebook.com/reel/…</code></td><td>The address changes per reel</td></tr>
+        <tr><td>👻 Snapchat Spotlight</td><td><code>snapchat.com/@user/spotlight/…</code></td><td>The address changes per video</td></tr>
+      </table>
+      <p>Switch platforms on in <b>Guard → Platforms</b>. A site that is switched on but not yet allowed shows <b>Needs site access</b> with an <b>Allow</b> button. Switching a site off removes the access again.</p>
+
+      <h2>Guard settings</h2>
+      <table>
+        <tr><th>Setting</th><th>Default</th><th>Range</th><th>What it does</th></tr>
+        <tr><td>Guard on/off</td><td>On</td><td>—</td><td>Master switch for every platform</td></tr>
+        <tr><td>Puzzle every</td><td>3 videos</td><td>1–50</td><td>How many videos you can watch between puzzles</td></tr>
+        <tr><td>Harder every</td><td>5 videos</td><td>1–50</td><td>How many videos until puzzles get one level harder (up to level 6)</td></tr>
+        <tr><td>Strict during focus</td><td>On</td><td>—</td><td>During a work session, every video asks for a puzzle</td></tr>
+        <tr><td>Notify me</td><td>On</td><td>—</td><td>Shows a notification when a focus or break period ends</td></tr>
+        <tr><td>Puzzle types</td><td>All six</td><td>At least one</td><td>Which puzzles can appear (see chapter 4)</td></tr>
+      </table>
+
+      <h2>The puzzle overlay</h2>
+      <ul>
+        <li>Shows how many videos you've watched on this visit, e.g. "3 Reels this visit".</li>
+        <li>Shows your pinned 🎯 task: "You wanted to: Finish history essay".</li>
+        <li><b>Different puzzle</b> swaps in another puzzle type. <b>Leave Shorts</b> (or Reels, TikTok…) takes you off the feed.</li>
+        <li>A wrong answer shakes the card. Pasting is blocked on the typing puzzle.</li>
+      </ul>
+
+      <h2>Is the guard running?</h2>
+      <p>The line under the on/off switch in the Guard tab tells you what the guard sees:</p>
+      <ul>
+        <li><i>"Not seen on a short-video feed yet"</i>: open a feed on a site that is switched on, or refresh a tab that was already open.</li>
+        <li><i>"Watching Instagram Reels now. Puzzle in 2 more videos."</i>: it is working and counting down.</li>
+      </ul>
+
+      <h2>Stats</h2>
+      <p>The Guard tab shows all-time totals: videos watched, time spent on short videos and puzzles solved, plus a count per platform.</p>
+    </section>
+
+    <!-- ============ 4. PUZZLES ============ -->
+    <section class="chapter">
+      <div class="kicker">04 · Puzzles</div>
+      <h1>Puzzle types</h1>
+      <p class="intro">Six kinds of puzzle, all getting harder the more videos you watch. Turn each on or off in the Guard tab (at least one stays on) and press <b>▶ Try</b> to play a demo. Demo solves don't count towards your stats.</p>
+
+      <table>
+        <tr><th>Type</th><th>What you do</th><th>Gets harder by</th></tr>
+        <tr><td>➗ Math</td><td>Solve <code>7 + 3 × 2</code> using normal operator precedence</td><td>More operations</td></tr>
+        <tr><td>🔢 Next number</td><td>Continue <code>3, 7, 11, 15, ?</code></td><td>Bigger steps, then multiplying (from level 3)</td></tr>
+        <tr><td>🔤 Word scramble</td><td>Unscramble <code>C S U O F</code> → FOCUS (any letter case)</td><td>Longer words</td></tr>
+        <tr><td>🧠 Memory</td><td>Digits show for 3 seconds, then you type them back</td><td>More digits (4 to 9)</td></tr>
+        <tr><td>🧩 Odd one out</td><td>Tap the emoji that doesn't belong</td><td>5 choices instead of 4</td></tr>
+        <tr><td>⌨️ Type it out</td><td>Type a short motivating phrase exactly (pasting is blocked)</td><td>Longer phrases</td></tr>
+      </table>
+
+      <h2>Fair rotation</h2>
+      <p>Selected types come in a <b>shuffled rotation</b>, like drawing cards from a bag. You get every selected type once before any type repeats, and never the same type twice in a row. The rotation is saved, so it carries on across tabs, page reloads and platforms.</p>
+
+      <h2>Difficulty</h2>
+      <p>Difficulty starts at level 1 on each visit to a feed and rises by one level every <b>Harder every</b> videos (5 by default), up to level 6. Scrolling longer means harder puzzles, which is exactly the point.</p>
+
+      <div class="note tip"><b class="tag">TIP</b><p>If you keep breezing through puzzles, lower <b>Harder every</b> or switch off the easier types. If you want gentler reminders, raise <b>Puzzle every</b>.</p></div>
+
+<div class="shots"><figure><img src="../images/guide/guard-puzzles.png" alt="Pick puzzle types and press ▶ Try for a demo." style="width:52mm" /><figcaption>Pick puzzle types and press ▶ Try for a demo.</figcaption></figure><figure><img src="../images/guide/demo.png" alt="A demo "Odd one out" puzzle inside the popup." style="width:72mm" /><figcaption>A demo "Odd one out" puzzle inside the popup.</figcaption></figure></div>
+    </section>
+
+    <!-- ============ 5. FOCUS ============ -->
+    <section class="chapter">
+      <div class="kicker">05 · Deep work</div>
+      <h1>Focus: the Pomodoro timer</h1>
+      <p class="intro">Work in focused blocks with short breaks in between. The timer runs in the background, so it keeps going when the popup is closed.</p>
+
+      <h2>Using the timer</h2>
+      <ul>
+        <li><b>Start, pause, reset or skip</b> from the Focus tab.</li>
+        <li>A bar tracks today's finished sessions against your daily goal. <b>Timer settings</b> (work, break, goal) sit at the bottom of the Focus tab.</li>
+        <li>Your pinned 🎯 task appears above the timer.</li>
+        <li>The toolbar badge shows <b>W</b> during work and <b>B</b> during a break.</li>
+        <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> starts or pauses the timer from any page. Change it at <code>chrome://extensions/shortcuts</code> or <code>edge://extensions/shortcuts</code>.</li>
+      </ul>
+
+<div class="shots"><figure><img src="../images/guide/focus.png" alt="The Focus tab during a work session: timer, pinned task and today's goal." style="width:58mm" /><figcaption>The Focus tab during a work session: timer, pinned task and today's goal.</figcaption></figure></div>
+      <h2>Timer settings</h2>
+      <table>
+        <tr><th>Setting</th><th>Default</th><th>Range</th></tr>
+        <tr><td>Work length</td><td>25 minutes</td><td>1–180 minutes</td></tr>
+        <tr><td>Break length</td><td>5 minutes</td><td>1–180 minutes</td></tr>
+        <tr><td>Daily goal</td><td>4 sessions</td><td>1–16 sessions</td></tr>
+        <tr><td>Notifications</td><td>On</td><td>Switch in Guard → Rules</td></tr>
+      </table>
+
+      <h2>Notifications and break tips</h2>
+      <p>When a work session ends you get a notification with your progress towards today's goal and a break idea (stretch, drink water, look away from the screen). When the break ends, another notification calls you back to work.</p>
+      <div class="note info"><b class="tag">IF THE BROWSER WAS CLOSED</b><p>If a session ends while the browser is closed, Focus Guard notices next time it starts and still records the finished session.</p></div>
+
+      <h2>Focus and the guard together</h2>
+      <p>With <b>Strict during focus</b> on, every short video asks for a puzzle while a work session is running. Combined with the 🎯 reminder, that makes "just one quick video" much less tempting.</p>
+    </section>
+
+    <!-- ============ 6. TASKS ============ -->
+    <section class="chapter">
+      <div class="kicker">06 · Planning</div>
+      <h1>Tasks and quick todos</h1>
+      <p class="intro">Tasks are sticky notes for real pieces of work. Quick todos are one-liners for small things.</p>
+
+      <h2>Tasks</h2>
+      <ul>
+        <li><b>Create</b> a task with a title, a tag, a priority and an optional deadline.</li>
+        <li><b>Edit (✎)</b> any task in place; <b>delete (×)</b> it when you no longer need it.</li>
+        <li><b>Tick</b> a task to finish it. Finishing a task earns 5 XP and a burst of confetti (skipped if your system asks for reduced motion).</li>
+        <li><b>Search</b> by text and <b>filter</b> by tag.</li>
+        <li><b>List or grid view</b>; your choice is remembered.</li>
+        <li>A <b>timer strip</b> at the top shows the same Pomodoro timer as the Focus tab.</li>
+        <li>Overdue tasks are marked so they stand out.</li>
+      </ul>
+
+      <div class="grid2">
+        <div class="card">
+          <h3>Tags</h3>
+          <p>Work · Study · Personal · Health · Other</p>
+          <h3>Priorities</h3>
+          <p>High · Medium (default) · Low</p>
+        </div>
+        <div class="card">
+          <h3>Sort modes</h3>
+          <ul>
+            <li><b>Smart</b>: priority, then deadline (default)</li>
+            <li><b>Deadline</b>: soonest first</li>
+            <li><b>Priority</b>: high first</li>
+            <li><b>Newest</b>: latest added first</li>
+            <li><b>A–Z</b>: by title</li>
+          </ul>
+          <p>Finished tasks always go last.</p>
+        </div>
+      </div>
+
+      <h2>The 🎯 focus pin</h2>
+      <p>Press 🎯 on a task to focus on it. It appears on the Focus timer and on every puzzle overlay, so a scroll break always reminds you what you meant to do. With no pin, the puzzle shows your most important open task.</p>
+
+      <h2>Quick todos</h2>
+      <p>Simple one-line todos you can add, tick off and delete, for things too small to be a task. Up to 100 todos of up to 120 characters each.</p>
+
+<div class="shots"><figure><img src="../images/guide/tasks-list.png" alt="List view: timer strip, new-task form, search, tag filter and sort." style="width:50mm" /><figcaption>List view: timer strip, new-task form, search, tag filter and sort.</figcaption></figure><figure><img src="../images/guide/tasks-grid.png" alt="Grid view of the same tasks." style="width:50mm" /><figcaption>Grid view of the same tasks.</figcaption></figure><figure><img src="../images/guide/todos.png" alt="Quick todos." style="width:50mm" /><figcaption>Quick todos.</figcaption></figure></div>
+    </section>
+
+    <!-- ============ 7. INSIGHTS ============ -->
+    <section class="chapter">
+      <div class="kicker">07 · Motivation</div>
+      <h1>Insights and motivation</h1>
+      <p class="intro">The Insights tab turns your progress into something you can see: a level, a streak, a garden and weekly charts.</p>
+
+      <h2>XP and levels</h2>
+      <table>
+        <tr><th>You earn</th><th>XP</th></tr>
+        <tr><td>A finished focus session</td><td>10</td></tr>
+        <tr><td>A finished task</td><td>5</td></tr>
+        <tr><td>A solved puzzle</td><td>2</td></tr>
+      </table>
+      <table>
+        <tr><th>Level</th><th>Title</th><th>XP needed</th></tr>
+        <tr><td>1</td><td>Seedling</td><td>0</td></tr>
+        <tr><td>2</td><td>Sprout</td><td>50</td></tr>
+        <tr><td>3</td><td>Sapling</td><td>150</td></tr>
+        <tr><td>4</td><td>Focused</td><td>350</td></tr>
+        <tr><td>5</td><td>Deep Worker</td><td>700</td></tr>
+        <tr><td>6</td><td>Flow Master</td><td>1,200</td></tr>
+        <tr><td>7</td><td>Zen Guardian</td><td>2,000</td></tr>
+      </table>
+      <p>XP comes from lifetime totals that are never trimmed, so your level never goes down.</p>
+
+      <h2>Streak, garden and charts</h2>
+      <table>
+        <tr><th>Feature</th><th>How it works</th></tr>
+        <tr><td>🔥 Streak</td><td>Days in a row with at least one finished focus session. Today doesn't break it until the day is over</td></tr>
+        <tr><td>🌱 Focus Garden</td><td>One plant per day for the last week. It sprouts with your first session and blooms when you reach your daily goal</td></tr>
+        <tr><td>📊 Weekly charts</td><td>7-day bars of focus minutes against short videos watched</td></tr>
+        <tr><td>🗓 History</td><td>The daily log keeps the last 60 days</td></tr>
+      </table>
+
+<div class="shots"><figure><img src="../images/guide/insights.png" alt="Level card, streak and the Focus Garden." style="width:52mm" /><figcaption>Level card, streak and the Focus Garden.</figcaption></figure><figure><img src="../images/guide/insights-charts.png" alt="Weekly charts: focus minutes against videos watched." style="width:56mm" /><figcaption>Weekly charts: focus minutes against videos watched.</figcaption></figure></div>
+    </section>
+
+    <!-- ============ 8. PRIVACY ============ -->
+    <section class="chapter">
+      <div class="kicker">08 · Trust</div>
+      <h1>Privacy and permissions</h1>
+      <p class="intro">Focus Guard is private by design. There is no account, no server, no tracking and no ads.</p>
+
+      <h2>Your data</h2>
+      <ul>
+        <li><b>No API keys, no database, no server, no sign-up.</b> Nothing needs configuring.</li>
+        <li><b>All data lives in the browser's local extension storage</b> on your computer: settings, tasks, todos, the timer, stats, the 60-day activity log and lifetime XP totals.</li>
+        <li><b>Removing the extension deletes all of it.</b></li>
+        <li><b>No network requests.</b> The only <code>fetch</code> reads the extension's own <code>manifest.json</code> to power the "Update ready" banner. Fonts and icons are bundled.</li>
+        <li><b>Site access is opt-in.</b> Only YouTube is enabled at install.</li>
+      </ul>
+
+      <h2>Permissions explained</h2>
+      <table>
+        <tr><th>Permission</th><th>Why it is needed</th></tr>
+        <tr><td>storage</td><td>Saves settings, tasks and stats locally</td></tr>
+        <tr><td>alarms</td><td>Ends focus and break periods on time while the popup is closed</td></tr>
+        <tr><td>notifications</td><td>Tells you when a focus or break period ends</td></tr>
+        <tr><td>scripting</td><td>Adds the guard to sites you switched on, and to tabs that were already open</td></tr>
+        <tr><td>youtube.com</td><td>Counts Shorts and shows the puzzle overlay</td></tr>
+        <tr><td>Optional sites</td><td>instagram.com, tiktok.com, facebook.com, snapchat.com: requested only when you switch that site on, removed when you switch it off</td></tr>
+      </table>
+
+      <div class="note tip"><b class="tag">ONE WRITER FOR YOUR STATS</b><p>Guard tabs and the popup send activity events to the background worker, which applies them one at a time. Nothing is lost when several tabs report at once, and a web page can't add focus sessions.</p></div>
+
+      <p>The full privacy policy is <code>PRIVACY.md</code> in the repository:<br /><span class="mono" style="font-size: 9pt; word-break: break-all">https://github.com/Vedant-S-Tattimani/CAPTCHA-Your-Attention-with-specify-todo-list/blob/main/PRIVACY.md</span></p>
+    </section>
+
+    <!-- ============ 9. TROUBLESHOOTING ============ -->
+    <section class="chapter">
+      <div class="kicker">09 · Help</div>
+      <h1>Troubleshooting and FAQ</h1>
+
+      <h3>No puzzle appears on YouTube Shorts.</h3>
+      <ul>
+        <li>Check the Guard tab: the guard must be on, and the status line should say it is watching.</li>
+        <li>The first puzzle comes on the <b>3rd</b> video by default. Scroll a few more.</li>
+        <li>Refresh a Shorts tab that was open before you installed or reloaded the extension.</li>
+        <li>In developer mode, make sure the extension was reloaded after updating its files (look for the Update ready banner).</li>
+      </ul>
+
+      <h3>Instagram, TikTok, Facebook or Snapchat isn't guarded.</h3>
+      <ul>
+        <li>Switch the platform on in Guard → Platforms and press <b>Allow</b> if it says "Needs site access".</li>
+        <li>Refresh the site's tab after allowing access.</li>
+        <li>These sites change their pages often. If one stops counting, its address pattern lives in <code>src/lib/platforms.js</code>.</li>
+      </ul>
+
+      <h3>I only ever get one kind of puzzle.</h3>
+      <p>Check which types are switched on in the Guard tab. With several on, the rotation gives each one before repeating any.</p>
+
+      <h3>The timer didn't notify me.</h3>
+      <p>Check that <b>Notify me when a timer phase ends</b> is ticked in Guard → Rules, and that your operating system allows notifications from the browser (Windows: Settings → System → Notifications).</p>
+
+      <h3>Does it need an internet connection, account or API key?</h3>
+      <p>No. Everything runs and is stored locally.</p>
+
+      <h3>Will I lose my data when I update?</h3>
+      <p>No. Updates keep your local data. Only removing the extension deletes it.</p>
+
+      <h3>Can I change the keyboard shortcut?</h3>
+      <p>Yes, at <code>edge://extensions/shortcuts</code> or <code>chrome://extensions/shortcuts</code>.</p>
+
+      <h3>Can I use it on my phone?</h3>
+      <p>No. It's a desktop browser extension. The guard works on the desktop websites of each platform.</p>
+    </section>
+
+    <!-- ============ 10. DEVELOPERS ============ -->
+    <section class="chapter">
+      <div class="kicker">10 · Under the hood</div>
+      <h1>For developers</h1>
+      <p class="intro">Plain JavaScript, Manifest V3, no build step and no dependencies. Pure logic lives in <code>src/lib/</code> and is covered by unit tests.</p>
+
+      <h2>Project layout</h2>
+      <table>
+        <tr><th>Path</th><th>Purpose</th></tr>
+        <tr><td>src/manifest.json</td><td>Manifest V3: permissions, content scripts, shortcut, background worker</td></tr>
+        <tr><td>src/background.js</td><td>Service worker: timer with alarms, badge, notifications, single-writer activity queue</td></tr>
+        <tr><td>src/platform-sync.js</td><td>Adds or removes the guard per platform and permission</td></tr>
+        <tr><td>src/lib/platforms.js</td><td>Supported sites, feed addresses, video detection</td></tr>
+        <tr><td>src/lib/puzzles.js</td><td>All six puzzle types, one shape, answer checking, rotation</td></tr>
+        <tr><td>src/lib/captcha.js</td><td>Math and number-sequence generators</td></tr>
+        <tr><td>src/lib/settings.js</td><td>Storage keys, settings validation, stats</td></tr>
+        <tr><td>src/lib/pomodoro.js</td><td>Timer state</td></tr>
+        <tr><td>src/lib/tasks.js, todos.js</td><td>Task and todo operations, sorting, filtering</td></tr>
+        <tr><td>src/lib/progress.js</td><td>Daily log, streaks, XP, levels, garden growth</td></tr>
+        <tr><td>src/lib/activity.js</td><td>Applies activity events to stats, daily log and lifetime totals</td></tr>
+        <tr><td>src/content/</td><td>The guard on each site, the puzzle view and overlay styles (Shadow DOM)</td></tr>
+        <tr><td>src/popup/</td><td>Toolbar popup: Guard, Focus, Tasks and Insights tabs</td></tr>
+        <tr><td>src/welcome/</td><td>First-install welcome page</td></tr>
+        <tr><td>src/fonts/, src/icons/</td><td>Bundled fonts with their OFL licences; original puzzle-piece icons</td></tr>
+        <tr><td>tests/</td><td>Unit tests (Node's built-in test runner)</td></tr>
+        <tr><td>tools/</td><td>Packaging, zip writer, store image renderer, preview server</td></tr>
+        <tr><td>store/</td><td>Store listing text, images and their HTML designs</td></tr>
+      </table>
+
+      <h2>Commands</h2>
+      <table>
+        <tr><th>Command</th><th>What it does</th></tr>
+        <tr><td>npm test</td><td>Runs the unit tests (Node 22 or newer, nothing to install)</td></tr>
+        <tr><td>npm run package</td><td>Checks the manifest and writes <code>dist/focus-guard-&lt;version&gt;.zip</code> with <code>manifest.json</code> at the top level</td></tr>
+        <tr><td>node tools/preview-server.js</td><td>Serves the popup preview on port 5178 for screenshots</td></tr>
+        <tr><td>tools/store-images.ps1</td><td>Renders icons, logo, promo tiles and screenshots with headless Edge</td></tr>
+      </table>
+      <p>Regenerate the store images (needs Edge installed, and the preview server running for screenshots):</p>
+      <p><code>powershell -ExecutionPolicy Bypass -File tools/store-images.ps1 -PreviewUrl http://127.0.0.1:5178</code></p>
+
+      <h2>Releasing an update</h2>
+      <ol class="steps">
+        <li>Raise <code>version</code> in <code>src/manifest.json</code> (e.g. 2.5.2 → 2.5.3).</li>
+        <li>Run <code>npm test</code>, then <code>npm run package</code>.</li>
+        <li>In Partner Center, open the extension, click <b>Update</b>, upload the new zip and submit.</li>
+      </ol>
+    </section>
+
+    <!-- ============ 11. STORE ============ -->
+    <section class="chapter">
+      <div class="kicker">11 · Publishing</div>
+      <h1>Store listing and publishing</h1>
+
+      <h2>Microsoft Edge Add-ons</h2>
+      <table>
+        <tr><th>Field</th><th>Value</th></tr>
+        <tr><td>Display name</td><td>Focus Guard</td></tr>
+        <tr><td>Version</td><td>2.5.2</td></tr>
+        <tr><td>Status</td><td>Submitted, in review (up to 7 business days)</td></tr>
+        <tr><td>Category</td><td>Productivity</td></tr>
+        <tr><td>Store ID</td><td class="mono">0RDCKFT84RZ8</td></tr>
+        <tr><td>CRX ID</td><td class="mono">pheoidgkenchblmfbkkleecljipfddcl</td></tr>
+        <tr><td>Store link</td><td class="mono" style="word-break: break-all">microsoftedge.microsoft.com/addons/detail/<br />pheoidgkenchblmfbkkleecljipfddcl</td></tr>
+        <tr><td>Short description</td><td>Stop doomscrolling with puzzles on YouTube Shorts, Instagram, TikTok, Facebook and Snapchat. Plus focus timer and tasks.</td></tr>
+        <tr><td>Search terms</td><td>doomscrolling, focus, pomodoro, youtube shorts blocker, productivity, screen time, reels blocker</td></tr>
+      </table>
+
+      <h2>Store images</h2>
+      <table>
+        <tr><th>Field</th><th>File (store/images/)</th><th>Size</th></tr>
+        <tr><td>Logo</td><td>logo-300.png</td><td>300 × 300</td></tr>
+        <tr><td>Small promo tile</td><td>promo-tile-440x280.png</td><td>440 × 280</td></tr>
+        <tr><td>Large promo tile</td><td>promo-large-1400x560.png</td><td>1400 × 560</td></tr>
+        <tr><td>Screenshots</td><td>screenshot-1-guard … screenshot-4-insights.png</td><td>1280 × 800</td></tr>
+      </table>
+
+      <h3>The four store screenshots</h3>
+      <div class="grid2" style="page-break-inside: avoid"><figure style="margin:0"><img src="../images/screenshot-1-guard.png" alt="Store screenshot 1-guard" /></figure><figure style="margin:0"><img src="../images/screenshot-2-shorts.png" alt="Store screenshot 2-shorts" /></figure><figure style="margin:0"><img src="../images/screenshot-3-tasks.png" alt="Store screenshot 3-tasks" /></figure><figure style="margin:0"><img src="../images/screenshot-4-insights.png" alt="Store screenshot 4-insights" /></figure></div>
+      <h2>During and after review</h2>
+      <ul>
+        <li>Don't click <b>Update</b> or <b>Cancel submission</b> while the review is running.</li>
+        <li>Don't rename the GitHub repository yet: the privacy policy URL points to its current name.</li>
+        <li>Approved: the status becomes <b>In the Store</b> and the store link starts working.</li>
+        <li>Rejected: the email lists the reasons. Fix them, raise the version and resubmit.</li>
+        <li>The same zip can also be published to the Chrome Web Store (one-time $5 developer registration).</li>
+      </ul>
+
+      <h2>Licence</h2>
+      <p>Focus Guard is open source under the MIT licence, © 2026 Vedant-S-Tattimani. Licence texts required by bundled third-party components (the fonts, and earlier MIT-licensed code) are kept in <code>THIRD_PARTY_NOTICES.txt</code> and <code>src/fonts/</code>.</p>
+      <p class="mono" style="font-size: 9pt">github.com/Vedant-S-Tattimani/CAPTCHA-Your-Attention-with-specify-todo-list</p>
+
+      <p class="footer-note">Focus Guard Guide · version 2.5.2 · November 2026</p>
+    </section>
+  </body>
+</html>

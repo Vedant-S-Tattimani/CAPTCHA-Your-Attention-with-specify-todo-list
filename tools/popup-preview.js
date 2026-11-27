@@ -86,6 +86,8 @@ const AFTER_LOAD = `
   if (q.get("running")) document.getElementById("btn-toggle").click();
   const tab = document.getElementById("tab-" + (q.get("tab") || "guard"));
   if (tab) tab.click();
+  if (q.get("view") === "grid") document.getElementById("view-grid")?.click();
+  if (q.get("demo")) document.querySelectorAll(".kind-try")[Number(q.get("demo")) - 1]?.click();
   document.activeElement?.blur();
   if (q.get("scroll")) {
     await new Promise((r) => setTimeout(r, 200));

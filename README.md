@@ -144,6 +144,14 @@ Regenerate the icons and store images after UI changes (needs Edge installed). S
 powershell -ExecutionPolicy Bypass -File tools/store-images.ps1 -PreviewUrl http://127.0.0.1:5178
 ```
 
+## Guide (PDF)
+
+[`docs/Focus-Guard-Guide.pdf`](docs/Focus-Guard-Guide.pdf) explains every feature with screenshots. Rebuild it after UI changes (start `node tools/preview-server.js` first):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/guide-pdf.ps1
+```
+
 ## Tests
 
 Requires Node 22 or newer. No packages to install.
