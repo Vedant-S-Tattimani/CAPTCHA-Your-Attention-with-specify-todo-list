@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Focus Guard",
-  "version": "2.5.1",
-  "description": "Puzzles that stop doomscrolling on YouTube Shorts, Instagram Reels, TikTok, Facebook Reels and Snapchat Spotlight, plus a focus timer, tasks, streaks and a focus garden.",
+  "version": "2.5.2",
+  "description": "Stop doomscrolling with puzzles on YouTube Shorts, Instagram, TikTok, Facebook and Snapchat. Plus focus timer and tasks.",
   "action": {
     "default_popup": "popup/popup.html",
     "default_title": "Focus Guard",

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Focus Guard icon: a yellow puzzle piece on an ink tile, with a cyan "selection" corner. -->
+  <rect x="2" y="2" width="96" height="96" rx="22" fill="#111212"/>
+  <path d="M22 32 h16 a10 10 0 1 1 20 0 h16 v16 a10 10 0 1 1 0 20 v16 h-52 z" fill="#ecb22e"/>
+  <circle cx="48" cy="58" r="7" fill="#111212"/>
+  <rect x="80" y="80" width="11" height="11" rx="2" fill="#36c5f0"/>
+</svg>

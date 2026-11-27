@@ -45,7 +45,7 @@
       const granted = await requestAccess(id);
       if (!granted) {
         await deps.savePlatforms(deps.getPlatforms().filter((p) => p !== id));
-        say(`Chrome access to ${PLATFORMS[id].short} wasn't allowed, so ${name} stays off.`);
+        say(`Access to ${PLATFORMS[id].short} wasn't allowed, so ${name} stays off.`);
         return;
       }
       say(`✓ ${name} guard is on. Already-open ${PLATFORMS[id].short} tabs get it automatically.`);
@@ -104,7 +104,7 @@
           item.querySelector(".platform-state").textContent = {
             "built-in": "Always on",
             on: "On",
-            "needs-access": "Needs Chrome access",
+            "needs-access": "Needs site access",
             off: "Off",
           }[state];
           item.querySelector(".platform-allow").hidden = state !== "needs-access";

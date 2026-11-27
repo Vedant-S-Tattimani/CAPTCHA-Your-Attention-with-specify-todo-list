@@ -1,0 +1,114 @@
+<!doctype html>
+<!--
+  1280x800 store screenshot. Pick one with ?shot=1-guard | 2-shorts | 3-tasks | 4-insights.
+  The right side embeds the real popup (/popup-preview.html) or the Shorts feed mock.
+  Rendered by tools/store-images.ps1 with tools/preview-server.js running.
+-->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="/src/fonts/fonts.css" />
+    <style>
+      html, body { margin: 0; }
+      body {
+        width: 1280px; height: 800px; overflow: hidden; color: #111212;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        background-color: #ffffff;
+        background-image: linear-gradient(#efefef 1px, transparent 1px), linear-gradient(90deg, #efefef 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+      .wrap { display: grid; grid-template-columns: 470px 1fr; align-items: center; gap: 30px; height: 100%; padding: 0 60px; box-sizing: border-box; }
+      .hand { display: inline-block; margin: 0 0 12px 4px; font: 40px/1 "Shadows Into Light", cursive; transform: rotate(-4deg); position: relative; }
+      .hand::after { content: ""; position: absolute; left: -4px; right: -8px; bottom: -10px; height: 8px; border-bottom: 4px solid #36c5f0; border-radius: 0 0 50% 50%; }
+      h1 { position: relative; margin: 0 0 30px; padding: 14px 18px 10px; border: 2px solid #36c5f0; font: 800 50px/1.08 "Bitcount Prop Single", sans-serif; letter-spacing: 1px; text-transform: uppercase; }
+      h1 i { position: absolute; width: 11px; height: 11px; background: #36c5f0; }
+      .tl { top: -7px; left: -7px; } .tr { top: -7px; right: -7px; } .bl { bottom: -7px; left: -7px; } .br { bottom: -7px; right: -7px; }
+      ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
+      li { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; font-size: 21px; line-height: 1.35; color: #2c2e2e; }
+      li span:first-child { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 6px; background: #111212; color: #ecb22e; font: 800 16px "Bitcount Prop Single"; }
+      .stage { position: relative; display: flex; justify-content: center; align-items: center; gap: 28px; height: 100%; }
+      .frame { position: relative; border: 2px solid #111212; border-radius: 10px; overflow: hidden; background: #fff; box-shadow: 10px 10px 0 #36c5f0, 0 30px 60px rgba(17, 18, 18, 0.18); }
+      .frame.yellow { box-shadow: 10px 10px 0 #ecb22e, 0 30px 60px rgba(17, 18, 18, 0.18); }
+      .frame iframe { display: block; border: 0; }
+      .frame.zoom { zoom: 1.25; }
+      .pill { position: absolute; z-index: 2; padding: 6px 16px 5px; border-radius: 99px; font: 700 18px "Bitcount Prop Single"; }
+      .pill::before { content: ""; position: absolute; top: -17px; left: -14px; width: 20px; height: 20px; background: var(--c); clip-path: polygon(0 0, 100% 45%, 50% 55%, 40% 100%); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div>
+        <div class="hand" id="hand"></div>
+        <h1 id="title"></h1>
+        <ul id="points"></ul>
+      </div>
+      <div class="stage" id="stage"></div>
+    </div>
+    <script>
+      const SHOTS = {
+        "1-guard": {
+          hand: "hey, wait!",
+          title: "Puzzles that stop the scroll",
+          points: [
+            ["▶", "YouTube Shorts, Instagram Reels, TikTok, Facebook Reels and Snapchat Spotlight"],
+            ["?", "Every few videos, a quick puzzle asks if this is what you meant to do"],
+            ["✓", "Pick sites and puzzle types, and see where your time goes"],
+          ],
+          frames: [{ src: "/popup-preview.html?tab=guard&scroll=%23platform-list", w: 360, h: 540, zoom: true }],
+          pills: [{ text: "NO SHORTS", c: "#e01e5a", fg: "#fff", right: 70, top: 22 }],
+        },
+        "2-shorts": {
+          hand: "six kinds!",
+          title: "Solve it to keep watching",
+          points: [
+            ["1", "Math, next number, word scramble, memory, odd one out, type it out"],
+            ["2", "Every selected type in a fair rotation, harder the more you scroll"],
+            ["3", "Reminds you of the task you pinned, right on the puzzle"],
+          ],
+          frames: [{ src: "/store/design/feed-preview.html", w: 640, h: 660, yellow: true }],
+        },
+        "3-tasks": {
+          hand: "let's focus!",
+          title: "Plan it. Focus. Finish.",
+          points: [
+            ["⏱", "Pomodoro timer that keeps running with the popup closed"],
+            ["✎", "Tasks you can create, edit, sort, search, in a list or grid"],
+            ["✓", "Quick todos, a daily goal and a task pinned to every puzzle"],
+          ],
+          frames: [{ src: "/popup-preview.html?tab=tasks&running=1&scroll=%23task-timer", w: 360, h: 540, zoom: true, yellow: true }],
+        },
+        "4-insights": {
+          hand: "goal smashed!",
+          title: "Watch your focus grow",
+          points: [
+            ["🔥", "Daily streaks and a focus goal"],
+            ["🌱", "A garden that blooms with every finished session"],
+            ["★", "Levels and XP, plus weekly charts of focus vs. videos"],
+          ],
+          frames: [{ src: "/popup-preview.html?tab=insights", w: 360, h: 540, zoom: true }],
+        },
+      };
+      const shot = SHOTS[new URLSearchParams(location.search).get("shot")] || SHOTS["1-guard"];
+      document.getElementById("hand").textContent = shot.hand;
+      const title = document.getElementById("title");
+      title.textContent = shot.title;
+      ["tl", "tr", "bl", "br"].forEach((c) => title.insertAdjacentHTML("beforeend", `<i class="${c}"></i>`));
+      document.getElementById("points").innerHTML = shot.points
+        .map(([icon, text]) => `<li><span>${icon}</span><span>${text}</span></li>`)
+        .join("");
+      const stage = document.getElementById("stage");
+      shot.frames.forEach((f) => {
+        stage.insertAdjacentHTML(
+          "beforeend",
+          `<div class="frame${f.yellow ? " yellow" : ""}${f.zoom ? " zoom" : ""}"><iframe src="${f.src}" width="${f.w}" height="${f.h}" scrolling="no"></iframe></div>`
+        );
+      });
+      (shot.pills || []).forEach((p) => {
+        stage.insertAdjacentHTML(
+          "beforeend",
+          `<span class="pill" style="--c:${p.c};background:${p.c};color:${p.fg};right:${p.right}px;top:${p.top}px">${p.text}</span>`
+        );
+      });
+    </script>
+  </body>
+</html>

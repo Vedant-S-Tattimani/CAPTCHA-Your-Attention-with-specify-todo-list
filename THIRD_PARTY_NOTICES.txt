@@ -28,7 +28,7 @@ SOFTWARE.
 
 ================================================================
 CAPTCHA-Your-Attention — https://github.com/You-now-Who/CAPTCHA-Your-Attention
-(Shorts detection, math puzzle idea, stats, icons)
+(Shorts detection, math puzzle idea, stats)
 ================================================================
 MIT License
 

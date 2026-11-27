@@ -123,8 +123,30 @@ src/
     insights.js          Level card, Focus Garden, weekly charts
     celebrate.js         Confetti (skipped if the system asks for reduced motion)
   welcome/               First-install welcome page
-  icons/                 From CAPTCHA-Your-Attention
+  icons/                 Original puzzle-piece icon (source: store/design/icon.svg)
 tests/                   Unit tests (Node's built-in test runner)
+```
+
+## Microsoft Edge
+
+Focus Guard runs in Edge unchanged (Edge uses the same extension system as Chrome).
+
+- **Try it:** open `edge://extensions`, turn on **Developer mode**, click **Load unpacked** and pick the `src` folder.
+- **Publish it:** everything for the Edge Add-ons store is in [`store/`](store/):
+  - [`store/edge-listing.md`](store/edge-listing.md): listing text, category, privacy URL, permission notes for reviewers
+  - `store/images/`: 300×300 logo, 440×280 promo tile, four 1280×800 screenshots
+  - [`PRIVACY.md`](PRIVACY.md): the privacy policy (use its GitHub URL in Partner Center)
+
+Build the upload zip (checks the manifest and writes `dist/focus-guard-<version>.zip` with `manifest.json` at the top level):
+
+```powershell
+npm run package
+```
+
+Regenerate the icons and store images after UI changes (needs Edge installed). Start `node tools/preview-server.js` in another terminal for the screenshots:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/store-images.ps1 -PreviewUrl http://127.0.0.1:5178
 ```
 
 ## Tests
