@@ -1,7 +1,6 @@
 /**
- * Task list logic, ported from Specify's Task model (MIT, Yevheniia Simaka):
- * title, priority, tag (colour category, like sticky notes) and deadline.
- * Stored locally in chrome.storage instead of MongoDB, so no account is needed.
+ * Task list logic: title, priority, tag (colour category, like sticky notes) and deadline.
+ * Stored locally in chrome.storage, so no account is needed.
  * All functions are pure and return new arrays.
  */
 (function (root) {

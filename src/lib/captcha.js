@@ -1,7 +1,6 @@
 /**
- * Math puzzle generator for the Shorts guard.
- * Adapted from CAPTCHA-Your-Attention (MIT, Yash Yadav), with the answer now
- * computed using normal operator precedence so it matches what people expect.
+ * Math and number-sequence puzzle generators for the guard.
+ * Answers use normal operator precedence (× before + and −), so they match what people expect.
  *
  * Loaded as a classic script (content script / popup) and as a CommonJS module (tests).
  */

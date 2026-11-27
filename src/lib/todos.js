@@ -1,5 +1,5 @@
 /**
- * Simple todos, like Specify's quick todo list: just a line of text you can tick off or delete,
+ * Simple todos: just a line of text you can tick off or delete,
  * without the tag/priority/deadline of a full task. Pure functions returning new arrays.
  */
 (function (root) {

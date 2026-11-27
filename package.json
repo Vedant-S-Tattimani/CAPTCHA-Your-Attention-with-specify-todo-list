@@ -2,7 +2,8 @@
   "name": "focus-guard",
   "version": "2.5.2",
   "private": true,
-  "description": "Pomodoro, tasks and an anti-doomscrolling Shorts guard, as a Chrome extension.",
+  "description": "Focus Guard: puzzles that stop doomscrolling on short-video feeds, plus a focus timer and tasks. A browser extension for Chrome and Edge.",
+  "author": "Vedant-S-Tattimani",
   "license": "MIT",
   "scripts": {
     "test": "node --test tests/*.test.js",

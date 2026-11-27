@@ -1,5 +1,5 @@
 /*
- * Tasks tab, covering Specify's task features: create, edit, delete, sort, search, grid/list
+ * Tasks tab: create, edit, delete, sort, search, grid/list
  * view, a Pomodoro timer strip, and simple todos (add / tick / delete).
  *
  * Task and timer state stay owned by popup.js (other tabs use them); this module renders the tab

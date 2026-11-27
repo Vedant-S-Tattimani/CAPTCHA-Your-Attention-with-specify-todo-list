@@ -1,11 +1,6 @@
 # Focus Guard
 
-A Chrome extension that helps you plan your work and stop doomscrolling on **YouTube Shorts, Instagram Reels, TikTok, Facebook Reels and Snapchat Spotlight**. It combines two open-source projects:
-
-| From | What it brings |
-|------|----------------|
-| [Specify](https://github.com/jane-does-coding/Specify) | Pomodoro timer and colour-tagged "sticky note" tasks |
-| [CAPTCHA-Your-Attention](https://github.com/You-now-Who/CAPTCHA-Your-Attention) | Math puzzles that interrupt YouTube Shorts, plus stats |
+A browser extension (Chrome and Edge) that helps you plan your work and stop doomscrolling on **YouTube Shorts, Instagram Reels, TikTok, Facebook Reels and Snapchat Spotlight**. It pairs a scroll guard (puzzles that interrupt short-video feeds) with focus tools (a Pomodoro timer and sticky-note tasks).
 
 The two parts work together:
 
@@ -58,7 +53,7 @@ By default the first puzzle appears on the **3rd** video (or on every video duri
 ## Using it
 
 - **Focus tab**: start, pause, reset or skip the Pomodoro timer. A bar of dots tracks today's sessions against your daily goal. Under *Timer settings* you can change the work and break lengths and the daily goal.
-- **Tasks tab**: everything Specify's task manager had:
+- **Tasks tab**:
   - **Create, edit (✎), delete (×)** tasks with a tag (Work, Study, Personal, Health, Other), a priority and an optional deadline
   - **Sort** by Smart (priority, then deadline), Deadline, Priority, Newest or A–Z; **search** and filter by tag
   - **List or grid view** (your choice is remembered)
@@ -157,22 +152,8 @@ Requires Node 22 or newer. No packages to install.
 npm test
 ```
 
-## What changed from the original projects
-
-**From CAPTCHA-Your-Attention, fixed:**
-
-- Answers used left-to-right maths: `2 + 3 × 4` expected 20, not 14, so correct answers were rejected. Puzzles now follow normal operator precedence.
-- The guard only loaded when a Shorts page was opened directly. Going from the YouTube home page into Shorts didn't trigger it. It now follows YouTube's in-page navigation.
-- "CAPTCHAs solved" went up when a puzzle *appeared*, not when it was solved. The popup also read the wrong storage key, so "shorts scrolled" always showed 0.
-- Time was counted every second on any Shorts page, even in background tabs. It now counts only while the tab is visible and no puzzle is open.
-- Typing the answer could trigger YouTube's keyboard shortcuts (number keys jump through the video). Key presses inside the puzzle no longer reach the page.
-- Removed `alert()` pop-ups, the debug logging that ran every 200 ms, and an unused 40,000-line `math.js` bundle.
-
-**From Specify, adapted:**
-
-- Specify is a Next.js website with MongoDB and logins. Its timer and task features were rewritten in plain JavaScript with local storage, so they work in an extension with no backend.
-- The timer now runs in the background, so it keeps going when the popup is closed.
-
 ## Licence
 
-Both original projects are MIT-licensed. Their licence texts are in [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt) and must stay with any copy you share or publish.
+MIT. See [LICENSE](LICENSE).
+
+Licence texts required by bundled third-party components (the fonts, and earlier MIT-licensed code) are kept in [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt) and `src/fonts/`.

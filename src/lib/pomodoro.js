@@ -1,8 +1,6 @@
 /**
- * Pomodoro timer state, ported from Specify's Timer component (MIT, Yevheniia Simaka).
- * The original kept time in React state, which stops when the page closes. Here the
- * state is a plain object with an absolute end time, so the background worker can keep
- * it running while the popup is closed. All functions return new objects.
+ * Pomodoro timer state: a plain object with an absolute end time, so the background worker
+ * can keep the timer running while the popup is closed. All functions return new objects.
  */
 (function (root) {
   "use strict";
@@ -54,7 +52,7 @@
     return { ...state, running: false, endsAt: null, remainingMs: durationMs(state.mode, settings) };
   }
 
-  /** Ends the current phase and starts the next one immediately (as Specify did). */
+  /** Ends the current phase and starts the next one immediately. */
   function advance(state, settings, now) {
     const nextMode = state.mode === "work" ? "break" : "work";
     const length = durationMs(nextMode, settings);

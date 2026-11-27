@@ -1,7 +1,6 @@
 /*
  * Short-video guard: counts videos on YouTube Shorts, Instagram Reels, TikTok, Facebook Reels and
  * Snapchat Spotlight (see lib/platforms.js) and interrupts with a puzzle every few videos.
- * Based on CAPTCHA-Your-Attention (MIT, Yash Yadav).
  * Runs on the whole site because these are single-page apps: opening the video feed from the
  * home page doesn't reload the page.
  */
