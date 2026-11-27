@@ -7,6 +7,7 @@
     src/icons/icon16|32|48|128.png      toolbar icons (from store/design/icon.html)
     store/images/logo-300.png           Edge store logo
     store/images/promo-tile-440x280.png small promotional tile
+    store/images/promo-large-1400x560.png large promotional tile
     store/images/screenshot-*.png       1280x800 screenshots (need the preview server, see README)
 #>
 param(
@@ -83,6 +84,12 @@ $promoRaw = Join-Path $work "promo.png"
 Invoke-Render (Get-FileUrl (Join-Path $design "promo.html")) 1000 700 $promoRaw
 Save-Scaled $promoRaw @(0, 0, 880, 560) 440 280 (Join-Path $images "promo-tile-440x280.png")
 Write-Output "promo tile done"
+
+# ---- Large promo tile (1400x560) ----
+$largeRaw = Join-Path $work "promo-large.png"
+Invoke-Render (Get-FileUrl (Join-Path $design "promo-large.html")) 1400 760 $largeRaw
+Save-Scaled $largeRaw @(0, 0, 1400, 560) 1400 560 (Join-Path $images "promo-large-1400x560.png")
+Write-Output "large promo tile done"
 
 # ---- Screenshots (1280x800); the design pages embed the live popup from the preview server ----
 if ($PreviewUrl) {

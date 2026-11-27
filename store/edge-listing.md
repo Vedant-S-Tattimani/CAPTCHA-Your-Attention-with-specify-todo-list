@@ -76,6 +76,7 @@ doomscrolling, focus, pomodoro, youtube shorts blocker, productivity, screen tim
 |-------|------|------|
 | Extension logo | `logo-300.png` | 300 × 300 |
 | Small promotional tile (optional) | `promo-tile-440x280.png` | 440 × 280 |
+| Large promotional tile (optional) | `promo-large-1400x560.png` | 1400 × 560 |
 | Screenshots | `screenshot-1-guard.png` … `screenshot-4-insights.png` | 1280 × 800 |
 
 ## Notes for certification (paste into "Notes for certification")

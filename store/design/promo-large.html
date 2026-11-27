@@ -1,0 +1,69 @@
+<!doctype html>
+<!-- Large promotional tile, 1400x560, rendered by tools/store-images.ps1. -->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../src/fonts/fonts.css" />
+    <style>
+      html, body { margin: 0; background: transparent; }
+      .tile {
+        position: absolute; left: 0; top: 0; width: 1400px; height: 560px; overflow: hidden; box-sizing: border-box;
+        display: grid; grid-template-columns: 1fr 520px; align-items: center; gap: 40px; padding: 0 90px;
+        font-family: "Segoe UI", system-ui, sans-serif; color: #111212;
+        background-color: #ffffff;
+        background-image: linear-gradient(#efefef 1px, transparent 1px), linear-gradient(90deg, #efefef 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+      .hand { position: relative; display: inline-block; margin: 0 0 16px 6px; font: 44px/1 "Shadows Into Light", cursive; transform: rotate(-4deg); }
+      .hand::after { content: ""; position: absolute; left: -6px; right: -10px; bottom: -11px; height: 9px; border-bottom: 4px solid #36c5f0; border-radius: 0 0 50% 50%; }
+      .sel { position: relative; display: inline-block; padding: 16px 22px 10px; border: 2px solid #36c5f0; font: 800 70px/1 "Bitcount Prop Single", sans-serif; letter-spacing: 2px; white-space: nowrap; }
+      .h { position: absolute; width: 13px; height: 13px; background: #36c5f0; }
+      .tl { top: -8px; left: -8px; } .tr { top: -8px; right: -8px; } .bl { bottom: -8px; left: -8px; } .br { bottom: -8px; right: -8px; }
+      .line { margin: 28px 0 24px; font: 600 30px/1.3 "Segoe UI", sans-serif; color: #2c2e2e; }
+      .sites { display: flex; flex-wrap: nowrap; gap: 8px; }
+      .sites span { padding: 5px 11px 4px; border: 2px solid #111212; border-radius: 99px; background: #fff; font: 700 14px "Bitcount Prop Single", sans-serif; letter-spacing: 0.4px; white-space: nowrap; }
+
+      /* Puzzle card, drawn to match the real overlay */
+      .stage { position: relative; height: 100%; display: grid; place-items: center; }
+      .card {
+        position: relative; width: 400px; padding: 26px 28px 24px; box-sizing: border-box; text-align: center;
+        border: 2px solid #111212; border-radius: 6px; background: #fff; box-shadow: 12px 12px 0 #36c5f0, 0 30px 60px rgba(17, 18, 18, 0.18);
+        transform: rotate(1.5deg);
+      }
+      .scribble { position: relative; display: inline-block; margin: 0 0 6px; color: #e01e5a; font: 28px/1 "Shadows Into Light", cursive; transform: rotate(-3deg); }
+      .card h2 { margin: 6px 0 6px; font: 800 26px/1.1 "Bitcount Prop Single", sans-serif; letter-spacing: 0.5px; }
+      .sub { margin: 0 0 16px; color: #5d6063; font: 13px ui-monospace, Consolas, monospace; letter-spacing: 0.4px; text-transform: uppercase; }
+      .note { margin: 0 8px 18px; padding: 10px 12px; background: #f5dda1; font-size: 15px; transform: rotate(-1.5deg); box-shadow: 0 6px 14px rgba(17, 18, 18, 0.12); }
+      .kind { margin-bottom: 10px; color: #1a8fbd; font: 700 13px ui-monospace, Consolas, monospace; letter-spacing: 1.2px; }
+      .choices { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+      .choices span { padding: 12px 0; border: 2px solid #111212; border-radius: 6px; font: 34px/1 "Segoe UI Emoji", sans-serif; box-shadow: 3px 3px 0 #e4e4e4; }
+      .choices span.pick { box-shadow: 3px 3px 0 #36c5f0; }
+      .pill { position: absolute; padding: 7px 18px 6px; border-radius: 99px; font: 700 20px "Bitcount Prop Single", sans-serif; }
+      .pill::before { content: ""; position: absolute; top: -19px; left: -15px; width: 22px; height: 22px; background: var(--c); clip-path: polygon(0 0, 100% 45%, 50% 55%, 40% 100%); }
+      .p1 { --c: #e01e5a; background: #e01e5a; color: #fff; right: -10px; top: 50px; }
+      .p2 { --c: #ecb22e; background: #ecb22e; color: #111212; left: 0; bottom: 56px; }
+    </style>
+  </head>
+  <body>
+    <div class="tile">
+      <div>
+        <div class="hand">let's focus!</div><br />
+        <div class="sel">FOCUS GUARD<i class="h tl"></i><i class="h tr"></i><i class="h bl"></i><i class="h br"></i></div>
+        <p class="line">Puzzles that stop the endless scroll,<br />plus a focus timer and tasks.</p>
+        <div class="sites"><span>▶ YOUTUBE SHORTS</span><span>INSTAGRAM</span><span>TIKTOK</span><span>FACEBOOK</span><span>SNAPCHAT</span></div>
+      </div>
+      <div class="stage">
+        <div class="card">
+          <p class="scribble">hey, wait!</p>
+          <h2>TIME FOR A BRAIN CHECK</h2>
+          <p class="sub">3 videos this visit</p>
+          <p class="note">🎯 You wanted to: <b>Finish history essay</b></p>
+          <div class="kind">TAP THE ODD ONE OUT</div>
+          <div class="choices"><span>🍎</span><span>🍌</span><span class="pick">🚗</span><span>🍇</span></div>
+        </div>
+        <span class="pill p1">NO SHORTS</span>
+        <span class="pill p2">FOCUS</span>
+      </div>
+    </div>
+  </body>
+</html>
